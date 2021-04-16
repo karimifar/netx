@@ -4,4 +4,16 @@
 }
 #dashboard{
     width:50%;
+    text-align: right;
+}
+
+.county-pop p{
+    margin-bottom: 0;
+}
+
+.county-pop .county-name{
+    font-weight: 900;
+}
+.county-pop p span{
+    font-weight: 700;
 }
