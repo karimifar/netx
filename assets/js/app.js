@@ -129,7 +129,21 @@ function createMap(){
                 'text-font': [
                     'Arial Unicode MS Bold'
                 ],
-                'text-size':10,
+                // 'text-size':10,
+                'text-size': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    6,
+                    11,
+                    10,
+                    24
+                    // 10,
+                    // ['get','font2'],
+                    // 12,
+                    // ['get','font2'],
+
+                ],
                 'text-offset': [0, 0],
                 // 'text-anchor': 'center'
                 },
@@ -201,7 +215,7 @@ function addLayer(themap, cause_id){
                 COLORS[7], breaksArr[7],
                 COLORS[8]
             ],
-            
+            'fill-opacity': 0.9
         }
 
     },firstSymbolId)
