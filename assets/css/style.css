@@ -1,3 +1,6 @@
+.content-wrap{
+    flex-wrap: wrap;
+}
 #mapwrap{
     width: 50%;
     height: 100vh;
