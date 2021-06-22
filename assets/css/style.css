@@ -1,19 +1,53 @@
-#map{
+#mapwrap{
     width: 50%;
     height: 100vh;
+    position: relative;
+}
+#map{
+    width:100%;
+    height: 100%;
+    position: absolute;
+}
+#legend{
+    position: absolute;
+    z-index: 2;
+    bottom: 5px;
+    left: 5px;
+    min-width: 270px;
+    background-color: #ffffffee;
+    padding: 10px;
 }
 #dashboard{
     width:50%;
     text-align: right;
 }
-
+select{
+    padding: 10px;
+}
 .county-pop p{
     margin-bottom: 0;
 }
-
 .county-pop .county-name{
     font-weight: 900;
 }
 .county-pop p span{
     font-weight: 700;
+}
+
+.leg-color{
+    width: 20%;
+    height: 10px;
+    align-self: center;
+    border: 1px solid #aaa;
+}
+.legend-item{
+    display: flex;
+    padding: 7px;
+}
+.legend-item p{
+    align-self: center;
+    width: 80%;
+    font-size: 12px;
+    margin-bottom: 0;
+    padding: 0 5px;
 }
