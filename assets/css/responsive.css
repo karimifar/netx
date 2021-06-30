@@ -1,5 +1,5 @@
 @media only screen and (max-width: 991px){
-    #mapwrap, #dashboard{
+    #mapwrap, #left-col{
         width: 100%;
     }
 }

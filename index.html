@@ -8,7 +8,7 @@
     
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
-    <!-- <link rel="stylesheet" href="https://use.typekit.net/ewr5ovq.css"> -->
+    <link rel="stylesheet" href="https://use.typekit.net/ajp4dmz.css">
     <!-- BOOTSTRAP CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
@@ -22,21 +22,47 @@
 </head>
 <body>
     <div class="content-wrap d-flex">
-        <div id="dashboard">
-            <select name="causes" id="cause" onchange="switchCause()">
-                <option value="acm">All Cause Mortality</option>
-                <option value="can">Cancer</option>
-                <option value="acc">Accidents</option>
-                <option value="clrd">Respiratory Disease</option>
-                <option value="hea">Heart Disease</option>
-                <option value="str">Stroke</option>
-            </select>
-            <div id="test"></div>
+        <div id="left-col">
+            <div id="intro">
+                <h1>Health Status of Northeast Texas</h1>
+                <p>
+                    This interactive tool is a digital complement to the 2021 Northeast Texas Health Status Report. It is intended to provide a reference for stakeholders in Northeast Texas, the 35-county area also referred to as the DSHS Health Service Region 4/5. It provides and contextualizes data for all-cause mortality as well as the top five leading causes of death in the region.
+                </p>
+                <div id="downloads" class="d-flex">
+                    <div class="download-wrap d-flex">
+                        <i class="far fa-file-pdf"></i>
+                        <a href="">Download Full Report</a>
+                    </div>
+                    <div class="download-wrap d-flex">
+                        <i class="fas fa-database"></i>
+                        <a href="">Download CSV Data</a>
+                    </div>
+                </div>
+            </div>
+            <div id="controls" class="d-flex">
+                <div class="control" id="search-bar">
+                    <input type="text"> <button><i class="fas fa-search-location"></i></button>
+                </div>
+                <div class="control" id="select-cause">
+                    <select name="causes" id="cause" onchange="switchCause()">
+                        <option value="acm">All Cause Mortality</option>
+                        <option value="can">Cancer</option>
+                        <option value="acc">Accidents</option>
+                        <option value="clrd">Respiratory Disease</option>
+                        <option value="hea">Heart Disease</option>
+                        <option value="str">Stroke</option>
+                    </select>
+                </div>
+                
+                
+            </div>
         </div>
 
         <div id="mapwrap">
-            <div id="map"></div>
-            <div id="legend"></div>
+            <div id="map">
+                <div id="legend"></div>
+            </div>
+            
         </div>
         
     </div>

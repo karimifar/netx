@@ -12,20 +12,21 @@ var COLORS = [
     '#4729a3',
     '#361f7a',
     '#ddd',
-    '#ddd',
-    '#dcefeb',
+    '#4fe0a1',
 ]
-var breaksArr = [1.1,2.1,3.1,4.1,5.1,6.1,7.1,8.1,9.1]
+var breaksArr = [1.1,2.1,3.1,4.1,5.1,6.1,8.1,9.1]
 var legend = {
-    1: {'name': '<10% above state rate', 'color':COLORS[0]},
-    2: {'name': '<10-20% above state rate', 'color':COLORS[1]},
-    3: {'name': '<20-30% above state rate', 'color':COLORS[2]},
-    4: {'name': '<30-40% above state rate', 'color':COLORS[3]},
-    5: {'name': '<40%-50% above state rate', 'color':COLORS[4]},
-    6: {'name': '50% or more above state rate', 'color':COLORS[5]},
-    7: {'name': 'Suppressed value', 'color':COLORS[6]},
-    8: {'name': 'Unreliable value', 'color':COLORS[7]},
-    9: {'name': 'Below state rate', 'color':COLORS[8]},
+    1: {'name': 'Unavailable', 'color':COLORS[6], 'bin':7},
+    2: {'name': '50% or more above state rate', 'color':COLORS[5],'bin':6},
+    3: {'name': '40%-50% above state rate', 'color':COLORS[4], 'bin':5},
+    4: {'name': '30-40% above state rate', 'color':COLORS[3], 'bin':4},
+    5: {'name': '20-30% above state rate', 'color':COLORS[2], 'bin':3},
+    6: {'name': '10-20% above state rate', 'color':COLORS[1], 'bin':2},
+    7: {'name': '0-10% above state rate', 'color':COLORS[0], 'bin':1},
+    8: {'name': 'Below state rate', 'color':COLORS[7], 'bin':9},
+    
+    // 8: {'name': 'Unreliable value', 'color':COLORS[7]},
+    
 
 }
 var KEYS = {
@@ -85,7 +86,7 @@ var popup = new mapboxgl.Popup({
 function createMap(){
     map = new mapboxgl.Map({
         container: 'map',
-        zoom: 6.7,
+        zoom: 6.5,
         center: [-95.1156622, 32.0289487],
         maxZoom: 10,
         minZoom: 1,
@@ -212,8 +213,7 @@ function addLayer(themap, cause_id){
                 COLORS[4],breaksArr[4],
                 COLORS[5], breaksArr[5],
                 COLORS[6], breaksArr[6],
-                COLORS[7], breaksArr[7],
-                COLORS[8]
+                COLORS[7]
             ],
             'fill-opacity': 0.9
         }
@@ -230,7 +230,10 @@ function addLayer(themap, cause_id){
             var county = e.features[0].properties.COUNTY;
             var population = e.features[0].properties.county_pop;
             var causeBin = e.features[0].properties[cause_id];
-            var causeRate = legend[causeBin].name
+            var causeRate = e.features[0].properties[cause_id+"_rate"]
+            if(causeRate ==0){
+                causeRate = 'Unavailable'
+            }
             var causeName = KEYS[cause_id].name;
             var coordinates = [e.lngLat.lng, e.lngLat.lat];
             console.log(coordinates)

@@ -1,8 +1,17 @@
+*{
+    font-family: acumin-pro, sans-serif;
+}
+a{
+    color: #000;
+}
+h1{
+    font-weight: 900;
+}
 .content-wrap{
     flex-wrap: wrap;
 }
 #mapwrap{
-    width: 50%;
+    width: 60%;
     height: 100vh;
     position: relative;
 }
@@ -13,20 +22,64 @@
 }
 #legend{
     position: absolute;
-    z-index: 2;
-    bottom: 5px;
-    left: 5px;
+    z-index: 10;
+    bottom: 10px;
+    left: 10px;
     min-width: 270px;
     background-color: #ffffffee;
     padding: 10px;
 }
-#dashboard{
-    width:50%;
-    text-align: right;
+#left-col{
+    width:40%;
 }
-select{
+#intro,#controls{
+    padding: 20px;
+}
+
+.download-wrap {
     padding: 10px;
 }
+.download-wrap i{
+    padding: 5px;
+}
+
+#controls{
+    justify-content: space-between;
+}
+#search-bar{
+    flex-grow: 1;
+    position: relative;
+    margin-right: 20px;
+}
+#search-bar input{
+    height: 40px;
+    padding: 5px 10px;
+    width: 100%;
+    position: relative;
+}
+#search-bar button{
+    height: 40px;
+    padding: 5px 10px;
+    position: absolute;
+    right: 0;
+    z-index: 2;
+}
+select{
+    height: 40px;
+    padding: 5px 10px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 .county-pop p{
     margin-bottom: 0;
 }
