@@ -16,14 +16,15 @@ var COLORS = [
 ]
 var breaksArr = [1.1,2.1,3.1,4.1,5.1,6.1,8.1,9.1]
 var legend = {
-    1: {'name': 'Unavailable', 'color':COLORS[6], 'bin':7},
-    2: {'name': '50% or more above state rate', 'color':COLORS[5],'bin':6},
-    3: {'name': '40%-50% above state rate', 'color':COLORS[4], 'bin':5},
-    4: {'name': '30-40% above state rate', 'color':COLORS[3], 'bin':4},
-    5: {'name': '20-30% above state rate', 'color':COLORS[2], 'bin':3},
-    6: {'name': '10-20% above state rate', 'color':COLORS[1], 'bin':2},
-    7: {'name': '0-10% above state rate', 'color':COLORS[0], 'bin':1},
-    8: {'name': 'Below state rate', 'color':COLORS[7], 'bin':9},
+    
+    1: {'name': '50% or more above state rate', 'color':COLORS[5],'bin':6},
+    2: {'name': '40%-50% above state rate', 'color':COLORS[4], 'bin':5},
+    3: {'name': '30-40% above state rate', 'color':COLORS[3], 'bin':4},
+    4: {'name': '20-30% above state rate', 'color':COLORS[2], 'bin':3},
+    5: {'name': '10-20% above state rate', 'color':COLORS[1], 'bin':2},
+    6: {'name': '0-10% above state rate', 'color':COLORS[0], 'bin':1},
+    7: {'name': 'Below state rate', 'color':COLORS[7], 'bin':9},
+    8: {'name': 'Unavailable', 'color':COLORS[6], 'bin':7},
     
     // 8: {'name': 'Unreliable value', 'color':COLORS[7]},
     
@@ -86,10 +87,10 @@ var popup = new mapboxgl.Popup({
 function createMap(){
     map = new mapboxgl.Map({
         container: 'map',
-        zoom: 6.5,
+        zoom: 6.7,
         center: [-95.1156622, 32.0289487],
         maxZoom: 10,
-        minZoom: 1,
+        minZoom: 5.5,
         style: mapStyle
     })
     
@@ -238,7 +239,7 @@ function addLayer(themap, cause_id){
             var coordinates = [e.lngLat.lng, e.lngLat.lat];
             console.log(coordinates)
             themap.setFeatureState({source: 'counties', id: hoveredCtId}, { hover: true});
-            var popupHTML = '<p class="county-name">'+county+'</p>' + '<p class="population">Population: <span>'+ population + '</span></p>' + '<p class="rate">'+causeName+' Rate: <span>' + causeRate + '</span></p>'
+            var popupHTML = '<p class="county-name">'+county+'</p>' + '<p class="population">Population: <span>'+ population + '</span></p>' + '<p class="rate">'+causeName+' Rate: <span>' + causeRate + ' </span>per 100,000</p>'
             popup.setLngLat(coordinates).setHTML(popupHTML).addTo(themap);
         }
         

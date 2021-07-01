@@ -78,7 +78,10 @@ select{
 
 
 
-
+.county-pop{
+    width: fit-content;
+    max-width: unset !important;
+}
 
 .county-pop p{
     margin-bottom: 0;
