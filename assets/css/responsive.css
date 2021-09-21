@@ -1,5 +1,5 @@
 @media only screen and (max-width: 991px){
-    #mapwrap, #left-col{
+    #right-col, #left-col{
         width: 100%;
     }
 }

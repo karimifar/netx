@@ -16,6 +16,13 @@
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css' rel='stylesheet' />
 
+    <!-- D3 -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script type="module">
+        import * as d3 from "https://cdn.skypack.dev/d3@7";
+    </script>
+
+    
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/responsive.css">
     <title>Mortality Rates in North East Texas</title>
@@ -40,29 +47,55 @@
                 </div>
             </div>
             <div id="controls" class="d-flex">
+
                 <div class="control" id="search-bar">
+                    <label class="control-head">Search by county name:</label>
                     <input type="text"> <button><i class="fas fa-search-location"></i></button>
                 </div>
                 <div class="control" id="select-cause">
+                    <label class="control-head">Select mortality cause:</label>
+
                     <select name="causes" id="cause" onchange="switchCause()">
                         <option value="acm">All Cause Mortality</option>
                         <option value="can">Cancer</option>
-                        <option value="acc">Accidents</option>
-                        <option value="clrd">Respiratory Disease</option>
+                        <option value="uni">Unintentional injury</option>
+                        <option value="clr">Respiratory Disease</option>
                         <option value="hea">Heart Disease</option>
                         <option value="str">Stroke</option>
                     </select>
                 </div>
                 
                 
-            </div>
-        </div>
-
-        <div id="mapwrap">
-            <div id="map">
-                <div id="legend"></div>
+                
             </div>
             
+        </div>
+
+        <div id="right-col">
+            <div id="map">
+                <div id="mapControl">
+                    <div id="binning">
+                        <label class="control-head">See map categorized by:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="binBtn" autocomplete="off" onclick="switchBin()" checked>
+                            <div class="slider round">
+                                <!--ADDED HTML -->
+                                <span class="percent">Percent above state rate</span>
+                                <span class="rate">Mortality rates</span>
+                                
+                                <!--END-->
+                            </div>
+                        </label>
+                    </div>
+                    <div id="legend"></div>
+                </div>
+            </div>
+            <div id="col-chart">
+                <div class="svg-wrap" id="col-chart-svg-wrap">
+
+                </div>
+
+            </div>
         </div>
         
     </div>
