@@ -1,7 +1,7 @@
 var map;
 var firstSymbolId;
 var hoveredCtId;
-var apiUrl = 'http://localhost:3306' //'https://texashealthdata.com'
+var apiUrl =  'https://texashealthdata.com' //'http://localhost:3306'
 var COLORSO = ['#eee','#e0c2a2','#d39c83','#c1766f','#a65461','#813753','#541f3f']
 var pColors = [
     // 'red',
