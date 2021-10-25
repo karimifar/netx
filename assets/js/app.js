@@ -1,8 +1,11 @@
 var map;
 var firstSymbolId;
 var hoveredCtId;
+var selectedCtId;
 var apiUrl =  'https://texashealthdata.com' //'http://localhost:3306'
-var COLORSO = ['#eee','#e0c2a2','#d39c83','#c1766f','#a65461','#813753','#541f3f']
+var selected = false;
+var trendData;
+var COLORSO = ['#eee','#e0c2a2','#d39c83','#c1766f','#a65461','#813753','#541f3f'];
 var pColors = [
     // 'red',
     '#ddd',
@@ -34,41 +37,58 @@ var ctyData;
 var KEYS = {
     'acm': {
         // 'breaks':[1.5,720, 842.5, 965, 1087.5, 1210],
-        'name': "All Cause Mortality"
+        'name': "All Cause"
         },
     'can': {
         // 'breaks': [1.5,121, 153, 185, 217, 249],
         'name': "Cancer"
         },
-    'uni': {
-        // 'breaks': [1.5,38, 48, 58, 68, 78],
-        'name': "Unintentional injury"
+    'hea': {
+        // 'breaks': [1.5,144, 182, 220, 258, 296],
+        'name': "Heart Disease"
         },
     'clr': {
         // 'breaks': [1.5, 44, 64, 84, 104, 124],
         'name': "Respiratory Disease"
         },
-    'hea': {
-        // 'breaks': [1.5,144, 182, 220, 258, 296],
-        'name': "Heart Disease"
-        },
     'str': {
         // 'breaks': [1.5,33, 42, 51, 60, 69],
-        'name': "Heart Disease"
+        'name': "Stroke"
         },
+    'uni': {
+        // 'breaks': [1.5,38, 48, 58, 68, 78],
+        'name': "Unintentional Injury"
+        },
+
 }
+
+
 var cause_keys = Object.keys(KEYS);
 $.get(apiUrl+'/api/netx/all', function(data){
     ctyData = data;
     for(var i=0; i<cause_keys.length; i++){
         var key = cause_keys[i]
+        var percent = cause_keys[i]+'_diff'
         var rawData = []
         var allData = []
         ctyData.filter(function(cty){
             rawData.push(cty[key])
+            var rate, percentDiff;
+            if(cty[key]){
+                rate = (cty[key])
+            }else{
+                rate = null
+            };
+
+            if(cty[percent]){
+                percentDiff = parseFloat(cty[percent])
+            }else{
+                percentDiff = null
+            }
             allData.push({
                 county: cty.county,
-                rate: parseFloat(cty[key])
+                rate: rate,
+                percent: percentDiff
             })
         })
         KEYS[cause_keys[i]].data = allData
@@ -79,8 +99,10 @@ $.get(apiUrl+'/api/netx/all', function(data){
             d3.quantile(rawData, 0.75),
         ]
         KEYS[cause_keys[i]].breaks = breaks;
-        console.log(KEYS[cause_keys[i]].breaks)
+        // console.log(KEYS[cause_keys[i]].breaks)
     }
+    createMap();
+
     createColChart('acm')
     if(binning == 'r'){
         create_rLegend()
@@ -89,6 +111,95 @@ $.get(apiUrl+'/api/netx/all', function(data){
     }
 })
 
+$.get(apiUrl+'/api/netx/trend', function(data){
+    trendData = data;
+    createTrendChart(visible_layer)
+})
+function createTrendChart(cause){
+    $('#trend-chart').empty()
+    var usTrend =[]
+    var stateTrend =[]
+    var netxTrend =[]
+
+    for(var i=0;i<trendData.length;i++){
+        var usItem = {year: trendData[i].year, rate:parseFloat(trendData[i][cause+'_us']) }
+        var stateItem = {year: trendData[i].year, rate:parseFloat(trendData[i][cause+'_tx'])}
+        var netxItem = {year: trendData[i].year, rate:parseFloat(trendData[i][cause+'_netx'])}
+        usTrend.push(usItem)
+        stateTrend.push(stateItem)
+        netxTrend.push(netxItem)
+    }
+    var causeTrend = [usTrend, stateTrend, netxTrend]
+    console.log(causeTrend)
+
+    var margin = {top: 25, right: 50, bottom: 25, left: 50};
+    var width = 500;
+    var height= 300;
+    var domain =[];
+    var max = 1000;
+    var max = d3.max(causeTrend, function(row){
+        return d3.max(row,function(column){
+            return column.rate
+        })
+    })
+    for(var i =0; i<trendData.length;i++){
+        domain.push(trendData[i].year)
+    }
+    console.log(domain)
+    var xScale = d3.scaleBand()
+        .domain(domain)
+        .range([0,width])
+
+    var yScale = d3.scaleLinear()
+        .domain([0,max])
+        .range([height,0])
+
+    var line = d3.line()
+        .x(function(d,i){console.log(d.year);return xScale(d.year);})
+        .y(function(d){return yScale(d.rate);})
+        // .curve(d3.curveMonotoneX)
+
+    var svg = d3.select('#trend-chart').append('svg')
+    .attr('viewBox', [0,0,width,height])
+    .attr("preserveAspectRatio", "xMinYMin meet")
+
+    .append("g")
+        .attr("transform", "translate(" + margin.left + "," +margin.top+")");
+
+        
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + '100' + ")")
+        .call(
+            d3.axisBottom(xScale)
+            .tickPadding(5)
+            .tickSize(5)
+        );
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(d3.axisLeft(yScale)
+        // .tickValues([1, 3, 5,10,15,20,30,40,50,60])
+        // .ticks(50)
+        .tickPadding(5)
+        .tickSize(5)
+    ); 
+
+    for(var i=0; i<causeTrend.length;i++){
+        drawLine(causeTrend[i], 'line'+(i+1))
+    }
+    
+    function drawLine(dataset,className){
+        console.log('yo')
+        svg.append('g')
+            .attr('class', 'chart-line')
+            .append('path')
+            .datum(dataset)
+            .attr('d',line)
+
+    }
+
+
+}
 function create_pLegend(){
     $('#legend').empty()
     for(var i=0; i<percent_legend.length; i++){
@@ -129,6 +240,7 @@ var visible_layer = cause_keys[0];
 mapboxgl.accessToken = "pk.eyJ1Ijoia2FyaW1pZmFyIiwiYSI6ImNqOGtnaWp4OTBjemsyd211ZDV4bThkNmIifQ.Xg-Td2FFJso83Mmmc87NDA";
 var mapStyle = "mapbox://styles/karimifar/ckq8gyf5355lv17ns51r44nz8";
 var mapStyle2 = "mapbox://styles/karimifar/ck2ey2mad1rtp1cmppck4wq2d";
+var mapStyle = "mapbox://styles/karimifar/cku4epw321k0w17qy45umxx3v"
 
 var popup = new mapboxgl.Popup({
     closeButton: false,
@@ -139,8 +251,8 @@ var popup = new mapboxgl.Popup({
 function createMap(){
     map = new mapboxgl.Map({
         container: 'map',
-        zoom: 6.7,
-        center: [-95.1156622, 32.0289487],
+        zoom: 6.5,
+        center: [-95.0, 31.2],
         maxZoom: 10,
         minZoom: 5.5,
         style: mapStyle
@@ -155,7 +267,8 @@ function createMap(){
                 break;
             }
         }
-        console.log(firstSymbolId)
+        // console.log(firstSymbolId)
+        firstSymbolId = 'building-top-line'
         map.addSource("counties", {
             type: "geojson",
             data: "https://texashealthdata.com/netx/map",
@@ -167,7 +280,7 @@ function createMap(){
         for (var i=0; i<cause_keys.length; i++){
             addLayer(map,cause_keys[i],'p',pBreaks)
             addLayer(map,cause_keys[i],'r',KEYS[cause_keys[i]].breaks)
-            console.log (i)
+            // console.log (i)
         }
         map.setLayoutProperty(
             'county_fill_'+binning+'_'+cause_keys[0],
@@ -184,13 +297,13 @@ function createMap(){
                 'text-font': [
                     'Arial Unicode MS Bold'
                 ],
-                // 'text-size':10,
+                'text-ignore-placement':true,
                 'text-size': [
                     'interpolate',
                     ['linear'],
                     ['zoom'],
                     6,
-                    11,
+                    8,
                     10,
                     24
                     // 10,
@@ -245,7 +358,6 @@ function createMap(){
 
 
 
-createMap();
 
 function addLayer(themap, cause_id, type, breaks){
     var id = 'county_fill_' + type+'_'+ cause_id;
@@ -304,6 +416,9 @@ function addLayer(themap, cause_id, type, breaks){
         if(e.features.length >0){
             if(hoveredCtId>=0){
                 themap.setFeatureState({source: 'counties', id: hoveredCtId}, { hover: false}); 
+                if(selected){
+                    map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: true}); 
+                }
             }
             themap.getCanvas().style.cursor = "pointer";
             hoveredCtId = e.features[0].id;
@@ -311,14 +426,33 @@ function addLayer(themap, cause_id, type, breaks){
             var population = e.features[0].properties.county_pop;
             var percentDiff = e.features[0].properties[cause_id+'_diff'];
             var causeRate = e.features[0].properties[cause_id]
-            if(causeRate ==-999){
-                causeRate = 'Unavailable'
-            }
+            // if(causeRate ==-999){
+            //     causeRate = 'Unavailable'
+            // }
             var causeName = KEYS[cause_id].name
             var coordinates = [e.lngLat.lng, e.lngLat.lat];
             themap.setFeatureState({source: 'counties', id: hoveredCtId}, { hover: true});
-            var popupHTML = '<p class="county-name">'+county+'</p>' + '<p class="population">Population: <span>'+ population + '</span></p>' +'<p class="percent">'+percentDiff+'</p>' + '<p class="rate">'+causeName+' Rate: <span>' + causeRate + ' </span>per 100,000</p>'
-            popup.setLngLat(coordinates).setHTML(popupHTML).addTo(themap);
+            // $('#pop-name').text(county)
+            // $('#pop-population').html('Population: '+d3.format(',')(population))
+            // $('#pop-causeName').html(causeName+':')
+            // $('#pop-value').html(function(){
+            //     if(causeRate == -999){
+            //         return 'Unavailable'
+            //     }else{
+            //         return causeRate+' per 100,000'
+            //     }
+                
+            // })
+            // $('#pop-percent').html(function(){
+            //     if (percentDiff>0){
+            //         return percentDiff +' percent above state rate'
+            //     }else{
+            //         return Math.abs(percentDiff) + ' percent below state rate'
+            //     }
+            // })
+            // createRadarchart(county)
+            // var popupHTML = '<p class="county-name">'+county+'</p>' + '<p class="population">Population: <span>'+ population + '</span></p>' +'<p class="percent">'+percentDiff+'</p>' + '<p class="rate">'+causeName+' Rate: <span>' + causeRate + ' </span>per 100,000</p>'
+            // popup.setLngLat(coordinates).setHTML(popupHTML).addTo(themap);
         }
         
     })
@@ -329,7 +463,24 @@ function addLayer(themap, cause_id, type, breaks){
                 {hover: false}
             )
         }
-        popup.remove();
+        if(selected){
+            themap.setFeatureState(
+                {source:'counties', id: selectedCtId},
+                {hover: true}
+            )
+        }
+
+        if(!selected){
+            $('.popup').empty();
+        }
+        // popup.remove();
+    })
+
+    themap.on("click", id, function(e) {
+        if(e.features.length>0){
+            var countyName = e.features[0].properties.COUNTY
+            queryCounty(countyName)
+        }
     })
 
 
@@ -385,11 +536,11 @@ function switchBin(){
     
 }
 
-if(binning == 'r'){
-    create_rLegend()
-}else{
-    create_pLegend();
-}
+// if(binning == 'r'){
+//     create_rLegend()
+// }else{
+//     create_pLegend();
+// }
 
 function createColChart(id){
     
@@ -397,18 +548,18 @@ function createColChart(id){
     var breaks = KEYS[id].breaks
     data.sort((c1,c2) => {
         if(!c1.rate){
-            return 1
+            return -1
             
         }else if(!c2.rate){
-            return -1
+            return 1
         }else{
             return c1.rate -c2.rate
         }
         
     })
-    var margin = {top: 10, right: 30, bottom: 50, left: 30};
-    var width = 500;
-    var height = 175;
+    var margin = {top: 12, right: 10, bottom: 12, left: 10};
+    var width = 200;
+    var height = 50;
 
     var min = d3.min(data, function(d){return d.rate})
     var max = d3.max(data, function(d){return d.rate})
@@ -424,18 +575,19 @@ function createColChart(id){
 
     var x = d3.scaleBand()
         .domain(data.map(function(d){return d.county}))
-        .range([margin.left,width-margin.right])
+        .range([margin.left,width-margin.right-margin.left]);
 
     var y = d3.scaleLinear()
         .domain([0,max])
-        .range([height-margin.bottom-10, margin.top]);
+        .range([height-margin.bottom, margin.top])
+        
 
-    var xAxis = d3.axisBottom(x)
+    var yAxis = d3.axisBottom(y)
     .tickPadding(10)
     .tickSize(0)
     .tickSizeOuter(0)
     
-    var yAxis = d3.axisLeft(y)
+    var xAxis = d3.axisBottom(x)
     .tickPadding(5)
     .tickSize(0)
     .tickSizeOuter(0)
@@ -450,35 +602,27 @@ function createColChart(id){
 
     svg.append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate(0," + (height-margin.bottom) + ")")
+      .attr("transform", "translate("+ (margin.left) + ","+ (height-margin.bottom)+")")
       .call(xAxis)
-      .call(g => g.select(".domain").remove())
+      .call(g => g.select(".domain").style('stroke-width', '0.5px'))
     .selectAll("text")
       .style("text-anchor", "end")
-      .attr("dx", "-.8em")
-      .attr("dy", "-1.2em")
-      .attr("transform", "rotate(-90)" )
+      .attr("dx", "-.5em")
+      .attr("dy", "-1em")
+      .attr("transform", "rotate(-45)" )
       .attr("class", (d,i)=> 'bar-label bar-label-cty' )
-      .style('font-size','6px')
+      .style('font-size','2.6px')
 
-    svg.append("g")
-      .attr("class", "axisline")
-      .append('line')
-      .attr('x1', 0)
-      .attr('x2', width)
-      .attr('y1', height-margin.bottom)
-      .attr('y2', height-margin.bottom)
-      .style('stroke', '#000')
-      .style('stroke-width', '0.5px')
     // svg.append("g")
-    //   .attr("class", "y axis")
-    //   .attr("transform", "translate("+margin.left+',' + margin.top + ")")
-    //   .call(yAxis)
-    // .selectAll("text")
-    //   .style("text-anchor", "end")
-    //   .attr("dx", "-.8em")
-    //   .attr("dy", "-.55em")
-    //   .attr("transform", "rotate(-45)" );
+    //   .attr("class", "axisline")
+    //   .append('line')
+    //   .attr('x1', 0)
+    //   .attr('x2', width)
+    //   .attr('y1', height-margin.bottom)
+    //   .attr('y2', height-margin.bottom)
+    //   .style('stroke', '#000')
+    //   .style('stroke-width', '0.5px')
+
 
     var bar = svg.append('g')
         .attr('id', 'all-bars')
@@ -488,18 +632,12 @@ function createColChart(id){
         bar.enter().append('rect')
         .merge(bar)
         // .join('rect')
-            .style('mix-blend-mode', 'multiply')
-            .attr('x', d =>x(d.county))
-            .attr('y', d =>{
-                if(d.rate){
-                 return y(d.rate)+ margin.top
-                }else{
-                    return margin.top
-                }
-            })
+            // .style('mix-blend-mode', 'multiply')
+            .attr('x', d =>x(d.county)+margin.right)
+            .attr('y', d => y(d.rate))
             .attr('height', d => {
                 if(d.rate){
-                    return height-margin.bottom-y(d.rate)-margin.top
+                    return y(0)-y(d.rate) 
                    }else{
                     return 0
                 }
@@ -518,20 +656,85 @@ function createColChart(id){
             .data(data)
             .join('text')
             .text(d=> {if(d.rate){return d.rate}})
-            .attr('x', (d,i)=> x.bandwidth()*i +margin.right)
-            .attr('y', d=>y(d.rate)+5)
-            .style('font-size', '8px')
+            .attr('x', (d,i)=> x(d.county)+margin.left+2)
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .attr('y', d=>y(d.rate)-5)
+            .style('font-size', '3px')
             .attr("class", (d,i)=> 'bar-label bar-label-rate label'+i )
 
 
 
     $('.col-chart-bar').hover(function(){
         var target = '.label' + $(this).data('target')
-        console.log(target)
+        // console.log(target)
         $(target).css('opacity', '1')
     }, function(){
         var target = '.label' + $(this).data('target')
         $(target).css('opacity', '0')
     })
 }
+
+function queryCounty(county){
+    selected = true;
+    if(selectedCtId){
+        map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
+    }
+
+    createRadarchart(county)
+    var countyFeatures = map.querySourceFeatures('counties', {
+        layer: 'county_fill_'+binning+'_acm',
+        filter: ['==', 'COUNTY', county]
+    });
+    var countyMap = countyFeatures[0]
+    selectedCtId = countyMap.id
+    var population = countyMap.properties.county_pop;
+    var percentDiff = countyMap.properties[visible_layer+'_diff'];
+    var causeRate = countyMap.properties[visible_layer];
+    var causeName = KEYS[visible_layer].name
+    $('#pop-name').text(county)
+    $('#pop-population').html('Population: '+d3.format(',')(population))
+    $('#pop-causeName').html(causeName+':')
+    $('#pop-value').html(function(){
+        if(causeRate == -999){
+            return 'Unavailable'
+        }else{
+            return causeRate+' per 100,000'
+        }
+        
+    })
+    
+    $('#pop-percent').html(function(){
+        if (percentDiff>0){
+            return percentDiff +' percent above state rate'
+        }else{
+            return Math.abs(percentDiff) + ' percent below state rate'
+        }
+    })
+
+    map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: true}); 
+
+
+}
+
+
+var radarState = [
+    [
+        {axis:'All Cause', value: 0, key:'acm'},
+        {axis:'Cancer', value: 0, key:'can'},
+        {axis:'Unintentional injury', value: 0, key:'uni'},
+        {axis:'Respiratory Disease', value: 0, key:'clr'},
+        {axis:'Heart Disease', value: 0, key:'hea'},
+        {axis:'Stroke', value: 0, key:'str'},
+    ],
+    
+]
+// RadarChart("#radarChart", radarState)
+$('#demo-data').on('click', function(){
+    $('#demo-data').toggleClass('collapsed')
+})
+
+
+
+
 

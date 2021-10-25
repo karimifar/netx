@@ -13,8 +13,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <!-- MAPBOX CDN -->
-    <script src='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css' rel='stylesheet' />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.js"></script>
 
     <!-- D3 -->
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
@@ -28,79 +28,97 @@
     <title>Mortality Rates in North East Texas</title>
 </head>
 <body>
-    <div class="content-wrap d-flex">
-        <div id="left-col">
-            <div id="intro">
-                <h1>Health Status of Northeast Texas</h1>
-                <p>
-                    This interactive tool is a digital complement to the 2021 Northeast Texas Health Status Report. It is intended to provide a reference for stakeholders in Northeast Texas, the 35-county area also referred to as the DSHS Health Service Region 4/5. It provides and contextualizes data for all-cause mortality as well as the top five leading causes of death in the region.
-                </p>
-                <div id="downloads" class="d-flex">
-                    <div class="download-wrap d-flex">
-                        <i class="far fa-file-pdf"></i>
-                        <a href="">Download Full Report</a>
-                    </div>
-                    <div class="download-wrap d-flex">
-                        <i class="fas fa-database"></i>
-                        <a href="">Download CSV Data</a>
-                    </div>
-                </div>
-            </div>
-            <div id="controls" class="d-flex">
+    <div class="content-wrap">
 
-                <div class="control" id="search-bar">
-                    <label class="control-head">Search by county name:</label>
-                    <input type="text"> <button><i class="fas fa-search-location"></i></button>
-                </div>
-                <div class="control" id="select-cause">
-                    <label class="control-head">Select mortality cause:</label>
-
-                    <select name="causes" id="cause" onchange="switchCause()">
-                        <option value="acm">All Cause Mortality</option>
-                        <option value="can">Cancer</option>
-                        <option value="uni">Unintentional injury</option>
-                        <option value="clr">Respiratory Disease</option>
-                        <option value="hea">Heart Disease</option>
-                        <option value="str">Stroke</option>
-                    </select>
-                </div>
-                
-                
-                
-            </div>
-            
-        </div>
-
-        <div id="right-col">
+        <div id="background">
             <div id="map">
-                <div id="mapControl">
-                    <div id="binning">
-                        <label class="control-head">See map categorized by:</label>
-                        <label class="switch">
-                            <input type="checkbox" id="binBtn" autocomplete="off" onclick="switchBin()" checked>
-                            <div class="slider round">
-                                <!--ADDED HTML -->
-                                <span class="percent">Percent above state rate</span>
-                                <span class="rate">Mortality rates</span>
-                                
-                                <!--END-->
-                            </div>
-                        </label>
+                
+            </div>
+            <div id="col-chart-wrap">
+                <div id="col-chart">
+                    <div class="svg-wrap" id="col-chart-svg-wrap">
+    
                     </div>
-                    <div id="legend"></div>
+    
                 </div>
             </div>
-            <div id="col-chart">
-                <div class="svg-wrap" id="col-chart-svg-wrap">
+            <div class="control" id="select-cause">
+                <label class="control-head">Select mortality cause:</label>
 
-                </div>
+                <select name="causes" id="cause" onchange="switchCause()">
+                    <option value="acm">All Cause Mortality</option>
+                    <option value="can">Cancer</option>
+                    <option value="uni">Unintentional injury</option>
+                    <option value="clr">Respiratory Disease</option>
+                    <option value="hea">Heart Disease</option>
+                    <option value="str">Stroke</option>
+                </select>
+
 
             </div>
         </div>
-        
+        <div id="foreground">
+            
+            <div id="fg-left-col">
+                <div id="demo-data" class="collapsed">
+                    <div id="demo-data-content" >
+                        <div id="trend-chart"></div>
+                    </div>
+                    <div id="demo-data-handle">
+                        <p>
+                            Trend & demographic data
+                        </p>
+                    </div>
+                </div>
+                <!-- <div id="search">
+                    <div class="control" id="search-bar">
+                        <label class="control-head">Search by county name:</label>
+                        <input type="text"> <button><i class="fas fa-search-location"></i></button>
+                    </div>
+                </div> -->
+                
+                
+            </div>
+            <div id="fg-right-col" class="query-result d-flex">    
+                <div id="toolbar">
+                    <div id="popup">
+                        <h1 class="popup" id="pop-name"></h1>
+                        <p class="popup" id="pop-population"></p>
+                        <p class="popup popup-compact" id="pop-causeName"></p>
+                        <p class="popup popup-compact" id="pop-value"></p>
+                        <p class="popup popup-compact" id="pop-percent"></p>
+                    </div>
+                    <div id="radarChart">
+
+                    </div>
+
+                </div>
+                
+                <div id="legend"></div>
+                    
+            </div>
+ 
+        </div>
+
+        <div id="intro-modal">
+            <h1>Health Status of Northeast Texas</h1>
+            <p>
+                This interactive tool is a digital complement to the 2021 Northeast Texas Health Status Report. It is intended to provide a reference for stakeholders in Northeast Texas, the 35-county area also referred to as the DSHS Health Service Region 4/5. It provides and contextualizes data for all-cause mortality as well as the top five leading causes of death in the region.
+            </p>
+            <div id="downloads" class="d-flex">
+                <div class="download-wrap d-flex">
+                    <i class="far fa-file-pdf"></i>
+                    <a href="">Download Full Report</a>
+                </div>
+                <div class="download-wrap d-flex">
+                    <i class="fas fa-database"></i>
+                    <a href="">Download CSV Data</a>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    
+            
+    <script src= "./assets/js/radarchart.js"></script>
     <script src= "./assets/js/app.js"></script>
 </body>
 </html>

@@ -10,15 +10,115 @@ h1{
 .content-wrap{
     flex-wrap: wrap;
 }
-#right-col{
-    width: 60%;
+#background{
+    width: 70%;
     height: 100vh;
     position: relative;
 }
+#foreground{
+    position: absolute;
+    top:0;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+    pointer-events: none;
+}
+#demo-data{
+    position: absolute;
+    left:0;
+    top:0;
+    height: 100%;
+    width: 100%;
+    /* min-width: 300px; */
+    background: #fff;
+    box-shadow: #aaa 0 0 5px;
+    z-index: 100;
+    transition: left 0.4s ease-in-out;
+}
+#demo-data.collapsed{
+    left: calc(-100% + 40px);
+    /* min-width: unset; */
+}
+#fg-left-col{
+    width: 100%;
+    max-width: 500px;
+    pointer-events: none;
+    position: relative;
+    /* background: red; */
+}
+#fg-mid-col{
+    position: absolute;
+    left:0;
+    bottom: 0;
+}
+#demo-data{
+    pointer-events: all;
+    display: flex;
+}
+#demo-data-handle{
+    width:40px;
+    background-color: #eee;
+    display: flex;
+    cursor: pointer;
+}
+#demo-data-handle p{
+    writing-mode: vertical-lr;
+    /* width: max-content; */
+    font-size: 14px;
+    align-self: center;
+    text-transform: uppercase;
+
+}
+#demo-data-content{
+    width: calc(100% - 40px);
+    padding:10px;
+}
+#fg-right-col{
+    width:30%;
+    pointer-events: all;
+    flex-direction: column;
+    justify-content: space-between;
+    padding:20px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.3) 8%,rgba(255,255,255,0.7) 15%,rgba(255,255,255,0.9) 20%,rgba(255,255,255,1) 28%);
+    /* background: #fff; */
+}
+.mapboxgl-ctrl-bottom-right{
+    display: none;
+}
+/* #left-dash{
+    width:100%;
+    padding-left: 100px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+} */
+#col-chart-wrap{
+    width: 100%;
+    height: fit-content;
+    overflow: scroll;
+    position: absolute;
+    bottom: 0;
+    z-index: 2;
+}
+#intro-modal{
+    display: none;
+}
 #map{
     width:100%;
-    height: 65%;
+    height: 100%;
     /* position: absolute; */
+}
+
+#toolbar{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+#radarChart{
+    /* align-self: flex-end; */
 }
 #col-chart{
     width: 100%;
@@ -29,7 +129,7 @@ h1{
 #col-chart-svg-wrap{
     width: 100%;
     /* max-height: 100%; */
-    padding-bottom: 35%;
+    padding-bottom: 25%;
     position: relative;
 }
 #col-chart svg{
@@ -49,24 +149,11 @@ h1{
 }
 .col-chart-bar:hover{
     stroke: #000;
-    stroke-width:0.5px 
+    stroke-width:0.25px 
 }
-#mapControl{
-    position: absolute;
-    z-index: 10;
-    top: 10px;
-    left: 10px;
-    min-width: 270px;
-    background-color: #ffffffee;
-    padding: 10px;
-    transition: all 0.2s ease-in-out;
-}
-#left-col{
-    width:40%;
-}
-#intro,#controls{
-    padding: 20px;
-}
+
+
+
 
 .download-wrap {
     padding: 10px;
@@ -87,7 +174,9 @@ h1{
     width: 50%;
 }
 #select-cause{
-    margin-right: 20px;
+    position: absolute;
+    top:20px;
+    right:20px
 }
 #search-bar input{
     height: 40px;
@@ -111,7 +200,9 @@ select{
 
 
 
-
+.popup-compact{
+    margin-bottom: 0;
+}
 
 
 
@@ -132,19 +223,36 @@ select{
 }
 
 .leg-color{
-    width: 20%;
+    width: 20px;
     height: 10px;
     align-self: center;
     border: 1px solid #000;
 }
+#legend{
+    /* position: absolute;
+    z-index: 10;
+    bottom: 10px;
+    right: 10px; */
+
+    width: 220px;
+    /* background-color: #ffffffee; */
+    padding: 10px;
+    margin-left: 30px;
+    font-size: 12px;
+    transition: all 0.2s ease-in-out;
+    /* display: none; */
+}
+#legend>p{
+    margin-bottom: 10px;
+}
 .legend-item{
     display: flex;
-    padding: 7px;
+    padding: 3px 7px;
 }
 .legend-item p{
     align-self: center;
     width: 80%;
-    font-size: 12px;
+    font-size: 10px;
     margin-bottom: 0;
     padding: 0 5px;
 }
@@ -226,3 +334,20 @@ select{
     border-radius: 9px;
 }
 /* Bin switch styles END */
+
+#trend-chart{
+    width: 100%;
+    padding-bottom: 60%;
+    position: relative;
+}
+#trend-chart svg{
+    position: absolute;
+    top:0;
+    left:0;
+    width: 100%;
+}
+
+.chart-line{
+    fill: none;
+    stroke: #000;
+}
