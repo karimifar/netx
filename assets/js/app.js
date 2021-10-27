@@ -2,10 +2,11 @@ var map;
 var firstSymbolId;
 var hoveredCtId;
 var selectedCtId;
+var selectedCty;
 var apiUrl =  'https://texashealthdata.com' //'http://localhost:3306'
 var selected = false;
 var trendData;
-var COLORSO = ['#eee','#e0c2a2','#d39c83','#c1766f','#a65461','#813753','#541f3f'];
+var demoColors = ['green','blue','red']
 var pColors = [
     // 'red',
     '#ddd',
@@ -130,46 +131,83 @@ function createTrendChart(cause){
         netxTrend.push(netxItem)
     }
     var causeTrend = [usTrend, stateTrend, netxTrend]
-    console.log(causeTrend)
+    // console.log(causeTrend)
 
-    var margin = {top: 25, right: 50, bottom: 25, left: 50};
+    var margin = {top: 30, right: 10, bottom: 20, left: 30};
     var width = 500;
     var height= 300;
     var domain =[];
-    var max = 1000;
+    // var max = 1000;
     var max = d3.max(causeTrend, function(row){
         return d3.max(row,function(column){
             return column.rate
         })
     })
+    var min = d3.min(causeTrend, function(row){
+        return d3.min(row,function(column){
+            return column.rate
+        })
+    })
+    
+    console.log(min)
     for(var i =0; i<trendData.length;i++){
         domain.push(trendData[i].year)
     }
     console.log(domain)
     var xScale = d3.scaleBand()
         .domain(domain)
-        .range([0,width])
+        .range([margin.left,width-margin.right-margin.left])
 
     var yScale = d3.scaleLinear()
-        .domain([0,max])
-        .range([height,0])
+        .domain([min-5,max+5])
+        .range([height-margin.bottom, margin.top])
+
+    var demoColor = d3.scaleOrdinal()
+        .domain([0,1,2])
+        .range(demoColors)
+
+    var ticks = yScale.ticks()
+    // ticks = ticks.filter(tick => tick>min-10 && tick<max)
+    // ticks.push(min,max)
 
     var line = d3.line()
-        .x(function(d,i){console.log(d.year);return xScale(d.year);})
+        .x(function(d,i){return xScale(d.year)+xScale.bandwidth()/2;})
         .y(function(d){return yScale(d.rate);})
-        // .curve(d3.curveMonotoneX)
+        .curve(d3.curveMonotoneX)
 
     var svg = d3.select('#trend-chart').append('svg')
     .attr('viewBox', [0,0,width,height])
     .attr("preserveAspectRatio", "xMinYMin meet")
+    
+    // gridlines in y axis function
+    function make_y_gridlines() {		
+        return d3.axisLeft(yScale)
+            .tickValues(ticks)
+    }
+    // svg.append("g")			
+    //   .attr("class", "grid")
+    //   .attr("transform", "translate(0," + height + ")")
+    //   .call(make_x_gridlines()
+    //       .tickSize(-height)
+    //       .tickFormat("")
+    //   )
+    //   .call(g => g.select(".domain").style('display', 'none'))
 
-    .append("g")
-        .attr("transform", "translate(" + margin.left + "," +margin.top+")");
+
+  // add the Y gridlines
+    svg.append("g")			
+        .attr("class", "grid")
+        .attr("transform", "translate(30, 0)")
+        .call(make_y_gridlines()
+            .tickSize((margin.right+margin.left+30)-width)
+            .tickFormat("")
+        )
+        .call(g => g.select(".domain").style('display', 'none'))
 
         
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + '100' + ")")
+        .attr("transform", "translate(0, "  + (height-margin.bottom) +")")
         .call(
             d3.axisBottom(xScale)
             .tickPadding(5)
@@ -177,27 +215,80 @@ function createTrendChart(cause){
         );
     svg.append("g")
         .attr("class", "y axis")
+        .attr("transform", "translate(" +margin.left+ ',' + " 0)")
         .call(d3.axisLeft(yScale)
-        // .tickValues([1, 3, 5,10,15,20,30,40,50,60])
-        // .ticks(50)
+        .tickValues(ticks)
         .tickPadding(5)
-        .tickSize(5)
+        .tickSize(0)
     ); 
 
     for(var i=0; i<causeTrend.length;i++){
-        drawLine(causeTrend[i], 'line'+(i+1))
+        drawLine(causeTrend[i], i)
+        annotations(causeTrend[i],i)
     }
-    
-    function drawLine(dataset,className){
-        console.log('yo')
+    var tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("display","none")
+            .style("opacity", 0);
+
+    function drawLine(dataset,i){
         svg.append('g')
-            .attr('class', 'chart-line')
+            .attr('id', '#line-group-'+i)
+            .attr('class', 'chart-line-group')
             .append('path')
             .datum(dataset)
             .attr('d',line)
+            .attr("class", "chartLine line-"+i)
+            .attr('stroke', function() {return demoColor(i)})
+  
+            // .on("mouseover", function (e,d) {
+            //     console.log(d)
+            //     tooltip.transition()
+            //         .duration(200)
+            //         .style("display","block")
+            //         .style("opacity", .9);
+            //     tooltip.html("<p>"+d.rate + "</p>")
+            //         .style("left", e.pageX+5 + "px")
+            //         .style("top", e.pageY-20 + "px");
+            // })
+            // .on("mouseleave", function (d) {
+            //     tooltip.transition()
+            //         .duration(200)
+            //         .style("display","none")
+            //         .style("opacity", 0)
+            // })
+        
 
     }
+    function annotations(dataset,i){
+        svg.append('g')
+            .attr('id', '#annotations-'+i)
+            .selectAll('.circle-g-'+i)
+            .data(dataset).enter()
+            .append('g')
+            .attr('class', 'circle-g circle-g-'+i)
+            
+        
+        svg.selectAll('.circle-g-'+i)
+            .data(dataset)
+            // console.log(dataset)
+            .append('circle')
+            .attr('class', i+'-dot chartDot')
+            .attr('cx', function(d,n){console.log(dataset);return xScale(d.year)+xScale.bandwidth()/2})
+            .attr('cy', function(d){return yScale(d.rate)})
+            .attr('r', '4px')
+            .style('stroke', 'none')
+            .style('fill', function() {return demoColor(i)})
 
+        svg.selectAll('.circle-g-'+i)
+            .data(dataset)
+            .append('text')
+            .attr('x', function(d){return xScale(d.year)+xScale.bandwidth()/2})
+            .attr('y', function(d){return yScale(d.rate)-10})
+            .attr('text-anchor', 'middle')
+            .style('font-size', '12px')
+            .text(d => d.rate)
+    }
 
 }
 function create_pLegend(){
@@ -495,6 +586,7 @@ function switchCause(){
         create_pLegend();
     }
     createColChart(selected_cause)
+    createTrendChart(selected_cause)
 }
 
 

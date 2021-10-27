@@ -234,10 +234,10 @@ select{
     bottom: 10px;
     right: 10px; */
 
-    width: 220px;
+    width: 100%;
     /* background-color: #ffffffee; */
     padding: 10px;
-    margin-left: 30px;
+    /* margin-left: 30px; */
     font-size: 12px;
     transition: all 0.2s ease-in-out;
     /* display: none; */
@@ -347,7 +347,23 @@ select{
     width: 100%;
 }
 
-.chart-line{
+.chart-line-group{
     fill: none;
     stroke: #000;
+}
+.line-group-0{
+    stroke: red;
+}
+.line-group-1{
+    stroke: blue;
+}
+.grid .tick{
+    stroke-width: 0.1px;
+    stroke: #eee
+}
+.circle-g text{
+    display: none;
+}
+.circle-g:hover text{
+    display: block;
 }
