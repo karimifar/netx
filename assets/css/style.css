@@ -56,6 +56,14 @@ h1{
     pointer-events: all;
     display: flex;
 }
+#demo-data-content h1{
+    font-size: 28px;
+    font-weight: 300;
+}
+#demo-data-content h1 span{
+    font-family: acumin-pro-wide, sans-serif;
+    font-weight: 700;
+}
 #demo-data-handle{
     width:40px;
     background-color: #eee;
@@ -365,5 +373,11 @@ select{
     display: none;
 }
 .circle-g:hover text{
+    display: block;
+}
+.bar-g text{
+    display: none;
+}
+.bar-g:hover text{
     display: block;
 }

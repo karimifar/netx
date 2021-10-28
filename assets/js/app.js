@@ -6,7 +6,9 @@ var selectedCty;
 var apiUrl =  'https://texashealthdata.com' //'http://localhost:3306'
 var selected = false;
 var trendData;
+var demoData
 var demoColors = ['green','blue','red']
+var regions = [{region:'us', name:'US'}, {region:'tx', name:'Texas'}, {region:'netx', name:'Northeast Texas'}]
 var pColors = [
     // 'red',
     '#ddd',
@@ -149,14 +151,12 @@ function createTrendChart(cause){
         })
     })
     
-    console.log(min)
     for(var i =0; i<trendData.length;i++){
         domain.push(trendData[i].year)
     }
-    console.log(domain)
     var xScale = d3.scaleBand()
         .domain(domain)
-        .range([margin.left,width-margin.right-margin.left])
+        .range([margin.left,width-margin.right])
 
     var yScale = d3.scaleLinear()
         .domain([min-5,max+5])
@@ -184,22 +184,12 @@ function createTrendChart(cause){
         return d3.axisLeft(yScale)
             .tickValues(ticks)
     }
-    // svg.append("g")			
-    //   .attr("class", "grid")
-    //   .attr("transform", "translate(0," + height + ")")
-    //   .call(make_x_gridlines()
-    //       .tickSize(-height)
-    //       .tickFormat("")
-    //   )
-    //   .call(g => g.select(".domain").style('display', 'none'))
-
-
   // add the Y gridlines
     svg.append("g")			
         .attr("class", "grid")
         .attr("transform", "translate(30, 0)")
         .call(make_y_gridlines()
-            .tickSize((margin.right+margin.left+30)-width)
+            .tickSize((margin.right+30)-width)
             .tickFormat("")
         )
         .call(g => g.select(".domain").style('display', 'none'))
@@ -226,10 +216,10 @@ function createTrendChart(cause){
         drawLine(causeTrend[i], i)
         annotations(causeTrend[i],i)
     }
-    var tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("display","none")
-            .style("opacity", 0);
+    // var tooltip = d3.select("body").append("div")
+    //         .attr("class", "tooltip")
+    //         .style("display","none")
+    //         .style("opacity", 0);
 
     function drawLine(dataset,i){
         svg.append('g')
@@ -240,26 +230,9 @@ function createTrendChart(cause){
             .attr('d',line)
             .attr("class", "chartLine line-"+i)
             .attr('stroke', function() {return demoColor(i)})
-  
-            // .on("mouseover", function (e,d) {
-            //     console.log(d)
-            //     tooltip.transition()
-            //         .duration(200)
-            //         .style("display","block")
-            //         .style("opacity", .9);
-            //     tooltip.html("<p>"+d.rate + "</p>")
-            //         .style("left", e.pageX+5 + "px")
-            //         .style("top", e.pageY-20 + "px");
-            // })
-            // .on("mouseleave", function (d) {
-            //     tooltip.transition()
-            //         .duration(200)
-            //         .style("display","none")
-            //         .style("opacity", 0)
-            // })
-        
-
     }
+
+    
     function annotations(dataset,i){
         svg.append('g')
             .attr('id', '#annotations-'+i)
@@ -274,7 +247,7 @@ function createTrendChart(cause){
             // console.log(dataset)
             .append('circle')
             .attr('class', i+'-dot chartDot')
-            .attr('cx', function(d,n){console.log(dataset);return xScale(d.year)+xScale.bandwidth()/2})
+            .attr('cx', function(d,n){return xScale(d.year)+xScale.bandwidth()/2})
             .attr('cy', function(d){return yScale(d.rate)})
             .attr('r', '4px')
             .style('stroke', 'none')
@@ -291,6 +264,117 @@ function createTrendChart(cause){
     }
 
 }
+
+
+$.get(apiUrl+'/api/netx/demo', function(data){
+    demoData = data;
+    console.log(demoData)
+    createGenderChart('acm')
+})
+function createGenderChart(cause){
+    $('#gender-chart').empty()
+    var rawData = demoData.filter(data => data.cause == cause)[0]
+    var data =[]
+    for(var i=0; i<regions.length; i++){
+        var region = regions[i].region;
+        var name = regions[i].name;
+        var dataObj = {region: region, name:name, gender:[parseFloat(rawData[region+'_f']), parseFloat(rawData[region+'_m'])]}
+        data.push(dataObj)
+    }
+    console.log(data)
+    var margin = {top: 30, right: 10, bottom: 20, left: 30};
+    var width = 500;
+    var height= 300;
+    var innerW = width-margin.left-margin.right;
+    var barW = 30;
+    var gap = 120;
+    var padding = (innerW - 6*barW-gap)/2
+    // console.log(padding,innerW)
+    var max = d3.max(data, function(row){
+        return d3.max(row.gender)
+    })
+
+    var yScale = d3.scaleLinear()
+        .domain([0,max+5])
+        .range([height-margin.bottom, margin.top])
+    
+    var demoColor = d3.scaleOrdinal()
+        .domain(['us','tx','netx'])
+        .range(demoColors)
+
+    var svg = d3.select('#gender-chart').append('svg')
+        .attr('viewBox', [0,0,width,height])
+        .attr("preserveAspectRatio", "xMinYMin meet")
+
+    svg.append("g")
+        .attr("class", "x axis")
+        // .attr("transform", "translate(0, "  + (height-margin.bottom) +")")
+        .append('line')
+        .attr('x1',margin.left)
+        .attr('x2',width - margin.right)
+        .attr('y1',yScale(0))
+        .attr('y2',yScale(0))
+        .style("stroke", "black")
+    svg.select('g.x')
+        .append('text')
+        .attr('x', margin.left+padding+1.5*barW)
+        .attr('y', height)
+        .text('Female')
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+    svg.select('g.x')
+        .append('text')
+        .attr('x', width - margin.right-padding-1.5*barW)
+        .attr('y', height)
+        .text('Male')
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" +margin.left+ ',' + " 0)")
+        .call(d3.axisLeft(yScale)
+        // .tickValues(ticks)
+        .tickPadding(5)
+        .tickSize(0)
+    ); 
+
+    for(var i =0; i<data.length; i++){
+        drawBars(data[i],i)
+    }
+    for(var i =0; i<data.length; i++){
+        annotations(data[i],i)
+    }
+    function drawBars(data,i){
+        var region= data.region;
+        svg.append('g')
+            .attr('class', 'bar-g bar-g-'+region)
+            .selectAll()
+            .data(data.gender).enter()
+            .append('rect')
+            .attr('class','bar-'+region)
+            .attr('x',function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
+            .attr('y',function(d,j){console.log(d);return yScale(d)})
+            .attr('width',barW)
+            .attr('height',function(d){return yScale(0)-yScale(d)})
+            .style('fill', demoColor(data.name))
+    }
+    function annotations(data,i){
+        var region= data.region;
+        svg.selectAll('.bar-g-'+region)
+        .selectAll()
+        .data(data.gender).enter()
+        .append('text')
+        .text(function(d){return d})
+        .attr('x', function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
+        .attr('y', function(d,j){console.log(d);return yScale(d)-2})
+    }
+    
+
+}
+
+
+
 function create_pLegend(){
     $('#legend').empty()
     for(var i=0; i<percent_legend.length; i++){
@@ -587,6 +671,7 @@ function switchCause(){
     }
     createColChart(selected_cause)
     createTrendChart(selected_cause)
+    createGenderChart(selected_cause)
 }
 
 
