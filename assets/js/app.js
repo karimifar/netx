@@ -7,7 +7,7 @@ var apiUrl =  'https://texashealthdata.com' //'http://localhost:3306'
 var selected = false;
 var trendData;
 var demoData
-var demoColors = ['green','blue','red']
+var demoColors = ['#7DACBE','#3D306A','#B728C3']
 var regions = [{region:'us', name:'US'}, {region:'tx', name:'Texas'}, {region:'netx', name:'Northeast Texas'}]
 var pColors = [
     // 'red',
@@ -17,10 +17,7 @@ var pColors = [
 ]
 var rColors = [
     '#ddd',
-    "#f6e5cf",
-    "#dd9fbf",
-    "#cc71b4",
-    "#8c3c88"
+    "#98d1d1", "#54bebe", "#df979e", "#c80064"
 ]
 
 
@@ -270,6 +267,7 @@ $.get(apiUrl+'/api/netx/demo', function(data){
     demoData = data;
     console.log(demoData)
     createGenderChart('acm')
+    createRaceChart('acm')
 })
 function createGenderChart(cause){
     $('#gender-chart').empty()
@@ -286,7 +284,7 @@ function createGenderChart(cause){
     var width = 500;
     var height= 300;
     var innerW = width-margin.left-margin.right;
-    var barW = 30;
+    var barW = 20;
     var gap = 120;
     var padding = (innerW - 6*barW-gap)/2
     // console.log(padding,innerW)
@@ -364,6 +362,115 @@ function createGenderChart(cause){
         svg.selectAll('.bar-g-'+region)
         .selectAll()
         .data(data.gender).enter()
+        .append('text')
+        .text(function(d){return d})
+        .attr('x', function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
+        .attr('y', function(d,j){console.log(d);return yScale(d)-2})
+    }
+    
+
+}
+
+function createRaceChart(cause){
+    $('#race-chart').empty()
+    var rawData = demoData.filter(data => data.cause == cause)[0]
+    var data =[]
+    for(var i=0; i<regions.length; i++){
+        var region = regions[i].region;
+        var name = regions[i].name;
+        var dataObj = {region: region, name:name, race:[parseFloat(rawData[region+'_w']), parseFloat(rawData[region+'_b']),parseFloat(rawData[region+'_h'])]}
+        data.push(dataObj)
+    }
+    console.log(data)
+    var margin = {top: 30, right: 10, bottom: 20, left: 30};
+    var width = 500;
+    var height= 300;
+    var innerW = width-margin.left-margin.right;
+    var barW = 20;
+    var gap = 60;
+    var padding = (innerW - 9*barW-2*gap)/2
+    // console.log(padding,innerW)
+    var max = d3.max(data, function(row){
+        return d3.max(row.race)
+    })
+
+    var yScale = d3.scaleLinear()
+        .domain([0,max+5])
+        .range([height-margin.bottom, margin.top])
+    
+    var demoColor = d3.scaleOrdinal()
+        .domain(['us','tx','netx'])
+        .range(demoColors)
+
+    var svg = d3.select('#gender-chart').append('svg')
+        .attr('viewBox', [0,0,width,height])
+        .attr("preserveAspectRatio", "xMinYMin meet")
+
+    svg.append("g")
+        .attr("class", "x axis")
+        // .attr("transform", "translate(0, "  + (height-margin.bottom) +")")
+        .append('line')
+        .attr('x1',margin.left)
+        .attr('x2',width - margin.right)
+        .attr('y1',yScale(0))
+        .attr('y2',yScale(0))
+        .style("stroke", "black")
+    svg.select('g.x')
+        .append('text')
+        .attr('x', margin.left+padding+1.5*barW)
+        .attr('y', height)
+        .text('Non-Hispanic White')
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+    svg.select('g.x')
+        .append('text')
+        .attr('x', margin.left+padding+4.5*barW+gap)
+        .attr('y', height)
+        .text('Non-Hispanic Black')
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+    svg.select('g.x')
+        .append('text')
+        .attr('x', margin.left+padding+7.5*barW+ 2*gap)
+        .attr('y', height)
+        .text('Hispanic')
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" +margin.left+ ',' + " 0)")
+        .call(d3.axisLeft(yScale)
+        // .tickValues(ticks)
+        .tickPadding(5)
+        .tickSize(0)
+    ); 
+
+    for(var i =0; i<data.length; i++){
+        drawBars(data[i],i)
+    }
+    for(var i =0; i<data.length; i++){
+        annotations(data[i],i)
+    }
+    function drawBars(data,i){
+        var region= data.region;
+        svg.append('g')
+            .attr('class', 'bar-g bar-g-'+region)
+            .selectAll()
+            .data(data.race).enter()
+            .append('rect')
+            .attr('class','bar-'+region)
+            .attr('x',function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
+            .attr('y',function(d,j){console.log(d);return yScale(d)})
+            .attr('width',barW)
+            .attr('height',function(d){return yScale(0)-yScale(d)})
+            .style('fill', demoColor(data.name))
+    }
+    function annotations(data,i){
+        var region= data.region;
+        svg.selectAll('.bar-g-'+region)
+        .selectAll()
+        .data(data.race).enter()
         .append('text')
         .text(function(d){return d})
         .attr('x', function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
@@ -672,6 +779,7 @@ function switchCause(){
     createColChart(selected_cause)
     createTrendChart(selected_cause)
     createGenderChart(selected_cause)
+    createRaceChart(selected_cause)
 }
 
 
@@ -777,18 +885,7 @@ function createColChart(id){
     // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-    svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate("+ (margin.left) + ","+ (height-margin.bottom)+")")
-      .call(xAxis)
-      .call(g => g.select(".domain").style('stroke-width', '0.5px'))
-    .selectAll("text")
-      .style("text-anchor", "end")
-      .attr("dx", "-.5em")
-      .attr("dy", "-1em")
-      .attr("transform", "rotate(-45)" )
-      .attr("class", (d,i)=> 'bar-label bar-label-cty' )
-      .style('font-size','2.6px')
+    
 
     // svg.append("g")
     //   .attr("class", "axisline")
@@ -841,6 +938,18 @@ function createColChart(id){
             .attr("class", (d,i)=> 'bar-label bar-label-rate label'+i )
 
 
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate("+ (margin.left) + ","+ (height-margin.bottom)+")")
+      .call(xAxis)
+      .call(g => g.select(".domain").style('stroke-width', '0.25px'))
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.5em")
+      .attr("dy", "-1em")
+      .attr("transform", "rotate(-45)" )
+      .attr("class", (d,i)=> 'bar-label bar-label-cty' )
+      .style('font-size','2.6px')
 
     $('.col-chart-bar').hover(function(){
         var target = '.label' + $(this).data('target')

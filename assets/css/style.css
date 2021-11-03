@@ -36,10 +36,7 @@ h1{
     z-index: 100;
     transition: left 0.4s ease-in-out;
 }
-#demo-data.collapsed{
-    left: calc(-100% + 40px);
-    /* min-width: unset; */
-}
+
 #fg-left-col{
     width: 100%;
     max-width: 500px;
@@ -64,8 +61,12 @@ h1{
     font-family: acumin-pro-wide, sans-serif;
     font-weight: 700;
 }
+#demo-data.collapsed{
+    left: calc(-100% + 50px);
+    /* min-width: unset; */
+}
 #demo-data-handle{
-    width:40px;
+    width:50px;
     background-color: #eee;
     display: flex;
     cursor: pointer;

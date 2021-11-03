@@ -18,7 +18,7 @@ function createRadarchart(county){
         var ctyData = causeData.filter(data => data.county.toLowerCase() ==county.toLowerCase())[0]
         // console.log(causeData,ctyData)
 
-        var radarItem = {axis: axis, value: ctyData.percent, key:cause}
+        var radarItem = {axis: axis, value: ctyData.percent, key:cause, rate:ctyData.rate}
         radarData.push(radarItem)
     }
     data.push(radarData)
@@ -56,7 +56,7 @@ function createRadarchart(county){
         maxValue: 140,
         levels: 1,
         roundStrokes: true,
-        color: color
+        // color: color
     };
 
     RadarChart("#radarChart", data);
@@ -78,9 +78,10 @@ function RadarChart(id, data, options) {
         opacityCircles: 0.1, 	//The opacity of the circles of each blob
         strokeWidth: 2, 		//The width of the stroke around each blob
         roundStrokes: true,	//If true the area and stroke will follow a round path (cardinal-closed)
-        color: d3.scaleOrdinal().range(["#666"])	//Color function
     };
-
+    var colorFunction =  d3.scaleThreshold().range(rColors).domain(KEYS.acm.breaks)	//Color function
+    var color = colorFunction(parseFloat(data[0][0].rate))
+    console.log(data[0][0].rate)
     //rewrite cfg object if options are passed
     if('undefined' !== typeof options){
         for(var i in options){
@@ -188,6 +189,24 @@ function RadarChart(id, data, options) {
         .text(function(d){return d})
         .call(wrap, cfg.wrapWidth);
 
+    var stateBlob = d3.lineRadial()
+        .curve(d3.curveLinearClosed)
+        .radius(function(){return rScale(0)})
+        .angle(function(d,i) {	return i*angleSlice; });
+
+        
+    g.selectAll('g.zeroBlob')
+        .data(data).enter()
+        .append('g')
+        .attr("class", "zeroBlob") 
+        .append("path")
+
+        .attr("d", function(d,i){console.log(stateBlob(d));return stateBlob(d)})
+        .style("fill", function(d,i) { return '#bbb'; })
+        .style("fill-opacity", cfg.opacityArea)
+        .style("mix-blend-mode", 'multiply')
+
+
 
     // Draw the radar chart blobs
     //The radial line function
@@ -195,7 +214,7 @@ function RadarChart(id, data, options) {
     .curve(d3.curveLinearClosed)
         .radius(function(d) { return rScale(d.value); })
         .angle(function(d,i) {	return i*angleSlice; });
-    
+
 
     //Create a wrapper for the blobs	
 	var blobWrapper = g.selectAll(".radarWrapper")
@@ -208,8 +227,9 @@ function RadarChart(id, data, options) {
         .append("path")
         .attr("class", "radarArea")
         .attr("d", function(d,i) { return radarLine(d); })
-        .style("fill", function(d,i) { return cfg.color(i); })
+        .style("fill", function(d,i) { return color; })
         .style("fill-opacity", cfg.opacityArea)
+        .style("mix-blend-mode", 'multiply')
 
     blobWrapper
     .on('mouseover', function (){
@@ -235,7 +255,7 @@ function RadarChart(id, data, options) {
         .attr("class", "radarStroke")
         .attr("d", function(d,i) { return radarLine(d); })
         .style("stroke-width", cfg.strokeWidth + "px")
-        .style("stroke", function(d,i) { return cfg.color(i); })
+        .style("stroke", function(d,i) { return color; })
         .style("fill", "none")
         // .style("filter" , "url(#glow)");
 
@@ -244,10 +264,10 @@ function RadarChart(id, data, options) {
         .data(function(d,i) {return d; })
         .enter().append("circle")
         .attr("class", "radarCircle")
-        .attr("r", cfg.dotRadius)
+        .attr("r", function(d,i){ if(d.value){return cfg.dotRadius}})
         .attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
         .attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
-        .style("fill", function(d,i,j) { return cfg.color(j); })
+        .style("fill", function(d,i,j) { return color; })
         .style("fill-opacity", 0.8);
 
     // blobWrapper.selectAll(".radarCircle")
@@ -278,7 +298,14 @@ function RadarChart(id, data, options) {
             tooltip
                 .attr('x', newX)
                 .attr('y', newY)
-                .text(Format(i.value)+'%')
+                .text(function(){
+                    if(i.value>0){
+                        return Format(Math.abs(i.value))+'% above state rate'
+                    }else{
+                        return Format(Math.abs(i.value))+'% below state rate'
+                    }
+                })
+                .attr('text-anchor','middle')
                 .transition().duration(200)
                 .style('opacity', 1)
                 .style('font-size','18px')
