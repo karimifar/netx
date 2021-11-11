@@ -497,7 +497,7 @@ function create_pLegend(){
 function create_rLegend(){
     var breaks = KEYS[visible_layer].breaks
     $('#legend').empty()
-    $('#legend').append('<div class="legend-item"><div class="leg-color" style="background-color:'+pColors[0]+'" ></div><p class="leg-text">Unavailable</p></div>')
+    $('#legend').append('<div class="legend-item"><p class="leg-text">Unavailable</p><div class="leg-color" style="background-color:'+pColors[0]+'" ></div></div>')
     for(var i=0; i<breaks.length; i++){
         if(i==0){
             var leg_name= 'Below '+breaks[i+1].toFixed(1)
@@ -509,8 +509,9 @@ function create_rLegend(){
         
         var color= rColors[i+1]
         var legend_item = $('<div class="legend-item">')
-        .append('<div class="leg-color" style="background-color:'+color+'" >')
         .append('<p class="leg-text">'+leg_name+'</p>')
+        .append('<div class="leg-color" style="background-color:'+color+'" >')
+        
     
         $('#legend').prepend(legend_item)
     }
@@ -963,6 +964,8 @@ function createColChart(id){
 
 function queryCounty(county){
     selected = true;
+    $('#fg-right-col').addClass('selected')
+    
     if(selectedCtId){
         map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
     }
@@ -1021,6 +1024,25 @@ $('#demo-data').on('click', function(){
 })
 
 
+$('.modal-toggle').on('click', function(){
+    $('#intro').toggleClass('closed')
+})
 
 
+var viewed = sessionStorage.getItem('viewed');
+if(!viewed){
+    $('#intro').toggleClass('closed')
+    sessionStorage.setItem('viewed', true);
+}
 
+$('#deselect').on('click',function(){
+    selected=false;
+    map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
+    $('#fg-right-col').removeClass('selected')
+})
+
+// $('#search-bar').hover(function(){
+//     $(this).css('flex-grow',1)
+// },function(){
+//     $(this).css('flex-grow',0)
+// })
