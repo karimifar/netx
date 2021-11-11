@@ -7,7 +7,7 @@ var apiUrl =  'https://texashealthdata.com' //'http://localhost:3306'
 var selected = false;
 var trendData;
 var demoData
-var demoColors = ['#7DACBE','#3D306A','#B728C3']
+var demoColors = ["#ecb29e","#9b3557", "#420239"]
 var regions = [{region:'us', name:'US'}, {region:'tx', name:'Texas'}, {region:'netx', name:'Northeast Texas'}]
 var pColors = [
     // 'red',
@@ -781,6 +781,8 @@ function switchCause(){
     createTrendChart(selected_cause)
     createGenderChart(selected_cause)
     createRaceChart(selected_cause)
+    queryCounty(selectedCty)
+    $('.cause-name').text(KEYS[selected_cause].name)
 }
 
 
@@ -964,9 +966,10 @@ function createColChart(id){
 
 function queryCounty(county){
     selected = true;
+    selectedCty = county;
     $('#fg-right-col').addClass('selected')
     
-    if(selectedCtId){
+    if(selectedCtId || selectedCtId == 0){
         map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
     }
 
@@ -981,23 +984,23 @@ function queryCounty(county){
     var percentDiff = countyMap.properties[visible_layer+'_diff'];
     var causeRate = countyMap.properties[visible_layer];
     var causeName = KEYS[visible_layer].name
-    $('#pop-name').text(county)
-    $('#pop-population').html('Population: '+d3.format(',')(population))
-    $('#pop-causeName').html(causeName+':')
+    $('#pop-name').text(county + ' County')
+    $('#pop-population').html('Population: <span>'+d3.format(',')(population)+'</span>')
+    $('#pop-causeName').html(causeName+' mortality rate:')
     $('#pop-value').html(function(){
         if(causeRate == -999){
             return 'Unavailable'
         }else{
-            return causeRate+' per 100,000'
+            return '<span>'+causeRate+'</span> per 100,000'
         }
         
     })
     
     $('#pop-percent').html(function(){
         if (percentDiff>0){
-            return percentDiff +' percent above state rate'
+            return '<span>'+ percentDiff +'% above</span> state rate'
         }else{
-            return Math.abs(percentDiff) + ' percent below state rate'
+            return Math.abs(percentDiff) + '% below</span> state rate'
         }
     })
 
@@ -1019,7 +1022,7 @@ var radarState = [
     
 ]
 // RadarChart("#radarChart", radarState)
-$('#demo-data').on('click', function(){
+$('#demo-data-handle').on('click', function(){
     $('#demo-data').toggleClass('collapsed')
 })
 

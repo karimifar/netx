@@ -100,9 +100,9 @@
                             <label class="control-head">Select mortality cause:</label>
             
                             <select name="causes" id="cause" onchange="switchCause()">
-                                <option value="acm">All Cause Mortality</option>
+                                <option value="acm">All Cause</option>
                                 <option value="can">Cancer</option>
-                                <option value="uni">Unintentional injury</option>
+                                <option value="uni">Unintentional Injury</option>
                                 <option value="clr">Respiratory Disease</option>
                                 <option value="hea">Heart Disease</option>
                                 <option value="str">Stroke</option>
@@ -122,12 +122,17 @@
                  
                 <div id="toolbar">
                     <div id="deselect"><i class="fas fa-times"></i></div>
-                    <div id="popup">
-                        <h1 class="popup" id="pop-name"></h1>
-                        <p class="popup" id="pop-population"></p>
-                        <p class="popup popup-compact" id="pop-causeName"></p>
-                        <p class="popup popup-compact" id="pop-value"></p>
-                        <p class="popup popup-compact" id="pop-percent"></p>
+                    <div id="popup" class='d-flex'>
+                        <div class="county">
+                            <h1 class="popup" id="pop-name"></h1>
+                            <p class="popup" id="pop-population"></p>
+                        </div>
+                        <div class="rate-info">
+                            <p class="popup popup-compact" id="pop-causeName"></p>
+                            <p class="popup popup-compact" id="pop-value"></p>
+                            <p class="popup popup-compact" id="pop-percent"></p>
+                        </div>
+                        
                     </div>
                     <div id="radarChart">
 

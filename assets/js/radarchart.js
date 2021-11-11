@@ -26,40 +26,18 @@ function createRadarchart(county){
     width = 600,
     height= 600;
 
-    // var data = [
-    //     [
-    //         {axis:'All Cause', value: 0, key:'acm'},
-    //         {axis:'Cancer', value: 0, key:'can'},
-    //         {axis:'Unintentional injury', value: 0, key:'uni'},
-    //         {axis:'Respiratory Disease', value: 0, key:'clr'},
-    //         {axis:'Heart Disease', value: 0, key:'hea'},
-    //         {axis:'Stroke', value: 0, key:'str'},
-    //     ],
-    //     [
-    //         {axis:'All Cause', value: 4, key:'acm'},
-    //         {axis:'Cancer', value: -5.6, key:'can'},
-    //         {axis:'Unintentional injury', value: 32.1, key:'uni'},
-    //         {axis:'Respiratory Disease', value: 12.6, key:'clr'},
-    //         {axis:'Heart Disease', value: -14.2, key:'hea'},
-    //         {axis:'Stroke', value: 73.1, key:'str'},
-    //     ],
-        
-    // ]
-
-    var color = d3.scaleOrdinal()
-        .range(["#666","red"]);
-
     var radarChartOptions = {
-        w: width,
-        h: height,
-        margin: margin,
-        maxValue: 140,
-        levels: 1,
-        roundStrokes: true,
+        // w: width,
+        // h: height,
+        // margin: margin,
+        // maxValue: 140,
+        // levels: 1,
+        // roundStrokes: true,
+        county: county
         // color: color
     };
 
-    RadarChart("#radarChart", data);
+    RadarChart("#radarChart", data, radarChartOptions);
 }
 
 
@@ -73,11 +51,12 @@ function RadarChart(id, data, options) {
         maxValue: 140, 			//What is the value that the biggest circle will represent
         labelFactor: 1.15, 	//How much farther than the radius of the outer circle should the labels be placed
         wrapWidth: 100, 		//The number of pixels after which a label needs to be given a new line
-        opacityArea: 0.35, 	//The opacity of the area of the blob
+        opacityArea: 0.55, 	//The opacity of the area of the blob
         dotRadius: 5, 			//The size of the colored circles of each blog
         opacityCircles: 0.7, 	//The opacity of the circles of each blob
         strokeWidth: 2, 		//The width of the stroke around each blob
         roundStrokes: true,	//If true the area and stroke will follow a round path (cardinal-closed)
+        county: '',
     };
     var colorFunction =  d3.scaleThreshold().range(rColors).domain(KEYS.acm.breaks)	//Color function
     var color = colorFunction(parseFloat(data[0][0].rate))
@@ -88,6 +67,8 @@ function RadarChart(id, data, options) {
           if('undefined' !== typeof options[i]){ cfg[i] = options[i]; }
         }
     }
+
+    var color = "#66175e"
 
     //If the supplied maxValue is smaller than the actual one, replace by the max in the data
 	var maxValue = Math.max(cfg.maxValue, d3.max(data, function(i){return d3.max(i.map(function(o){return o.value;}))}));
@@ -103,8 +84,10 @@ function RadarChart(id, data, options) {
         .range([0, radius])
         .domain([-100, maxValue]);
 
+    
     //Remove whatever chart with the same id/class was present before
 	d3.select(id).select("svg").remove();
+    $(id).empty();
 
     	//Initiate the radar chart SVG
 	var svg = d3.select(id).append("svg")
@@ -348,4 +331,17 @@ function RadarChart(id, data, options) {
           }
         });
     }//wrap	
+
+    var radarLegend = $('<div id="radarLegend">')
+    var state = $('<div class="radar-legend-item state-leg">')
+        state.append('<div class="radar-leg-color state-color">')
+        state.append('<span>State Average</span>')
+    var countyLeg = $('<div class="radar-legend-item cty-leg">')
+        countyLeg.append('<div class="radar-leg-color cty-color" style="background:'+color+';">')
+        countyLeg.append('<span>'+cfg.county+' County</span>')
+
+    radarLegend.append(state)
+    radarLegend.append(countyLeg)
+    $(id).append(radarLegend)
+
 }//RadarChart

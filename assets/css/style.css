@@ -108,6 +108,9 @@ p#handle-arrow{
 #demo-data-content{
     width: calc(100% - 40px);
     padding:10px;
+    height: 100%;
+    overflow: scroll;
+    /* background-color: #faf3f177; */
 }
 #fg-right-col{
     position: relative;
@@ -127,6 +130,7 @@ p#handle-arrow{
 }
 #logos{
     display: flex;
+    justify-content: flex-end;
 }
 .logo-wrap{
     padding: 15px;
@@ -242,9 +246,14 @@ p#handle-arrow{
 
 #deselect{
     position: absolute;
-    top:0;
+    top:10px;
     right: 10px;
     cursor: pointer;
+    width:24px;
+    height: 24px;
+    background-color: #fff;
+    border-radius: 10px;
+    text-align: center;
 }
 .selected #toolbar{
     opacity: 1;
@@ -258,6 +267,25 @@ p#handle-arrow{
     align-self: center;
     width: 100%;
     max-width: 500px;
+    position: relative;
+}
+#radarLegend{
+    position: absolute;
+    bottom:0;
+    left:0;
+}
+.radar-legend-item{
+    display: flex;
+    font-size: 10px;
+}
+.radar-leg-color{
+    width:20px;
+    height: 8px;
+    align-self: center;
+    margin-right: 4px;
+}
+.radar-legend-item .state-color{
+    background-color: #bbb;
 }
 #col-chart{
     width: 100%;
@@ -377,8 +405,8 @@ form{
 #select-cause select{
     width: 100%;
     height: 40px;
-    font-size: 20px;
-    font-weight: 800;
+    font-size: 18px;
+    font-weight: 600;
     border-radius: 5px;
 }
 .control{
@@ -403,7 +431,7 @@ form{
 
 select{
     height: 40px;
-    padding: 5px 10px;
+    padding: 2px 10px;
 }
 
 
@@ -413,10 +441,31 @@ select{
 .popup-compact{
     margin-bottom: 0;
 }
+.popup{
+    font-weight: 200;
+}
+.popup span{
+    font-weight: 700;
+}
 
-
-
-
+#popup .county{
+    width:40%;
+    padding-right: 15px;
+}
+#popup .rate-info{
+    width:60%;
+    padding-right: 15px;
+    /* padding-top:10px */
+}
+#pop-name{
+    font-size: 20px;
+    font-weight: 700;
+    overflow-wrap: break-word;
+    font-family: acumin-pro-wide, sans-serif;
+}
+#pop-causeName{
+    font-weight: 500;
+}
 .county-pop{
     width: fit-content;
     max-width: unset !important;
