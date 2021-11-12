@@ -9,63 +9,40 @@ var trendData;
 var demoData
 var demoColors = ["#ecb29e","#9b3557", "#420239"]
 var regions = [{region:'us', name:'US'}, {region:'tx', name:'Texas'}, {region:'netx', name:'Northeast Texas'}]
-var pColors = [
-    // 'red',
-    '#ddd',
-    '#4fe0a1',
-    "#f6e5cf", "#e6b7c4", "#d588b9", "#cc71b4", "#a14e96", "#762a79"
-]
-var rColors = [
-    '#ddd',
-    "#98d1d1", "#54bebe", "#df979e", "#c80064"
-]
+var rColors = ['#ddd',"#98d1d1", "#54bebe", "#df979e", "#c80064"]
 
-
-var pBreaks = [-100,0,10,20,30,40,50]
-var percent_legend = [
-    {'name': '50% or more above state rate', 'color':pColors[7]},
-    {'name': '40%-50% above state rate', 'color':pColors[6]},
-    {'name': '30-40% above state rate', 'color':pColors[5]},
-    {'name': '20-30% above state rate', 'color':pColors[4]},
-    {'name': '10-20% above state rate', 'color':pColors[3]},
-    {'name': '0-10% above state rate', 'color':pColors[2]},
-    {'name': 'Below state rate', 'color':pColors[1]},
-    {'name': 'Unavailable', 'color':pColors[0]},
-]
-var binning = 'r'
+// var binning = 'r'
 var ctyData;
+var allCounties = []
 var KEYS = {
     'acm': {
-        // 'breaks':[1.5,720, 842.5, 965, 1087.5, 1210],
         'name': "All Cause"
         },
     'can': {
-        // 'breaks': [1.5,121, 153, 185, 217, 249],
         'name': "Cancer"
         },
     'hea': {
-        // 'breaks': [1.5,144, 182, 220, 258, 296],
         'name': "Heart Disease"
         },
     'clr': {
-        // 'breaks': [1.5, 44, 64, 84, 104, 124],
         'name': "Respiratory Disease"
         },
     'str': {
-        // 'breaks': [1.5,33, 42, 51, 60, 69],
         'name': "Stroke"
         },
     'uni': {
-        // 'breaks': [1.5,38, 48, 58, 68, 78],
         'name': "Unintentional Injury"
         },
 
 }
-
-
 var cause_keys = Object.keys(KEYS);
+var visible_layer = cause_keys[0];
+
+
+//get all county data and store in ctyData & KEYS variables
 $.get(apiUrl+'/api/netx/all', function(data){
     ctyData = data;
+    allCounties = ctyData.map(data => data.county.toLowerCase())
     for(var i=0; i<cause_keys.length; i++){
         var key = cause_keys[i]
         var percent = cause_keys[i]+'_diff'
@@ -99,22 +76,20 @@ $.get(apiUrl+'/api/netx/all', function(data){
             d3.quantile(rawData, 0.75),
         ]
         KEYS[cause_keys[i]].breaks = breaks;
-        // console.log(KEYS[cause_keys[i]].breaks)
     }
-    createMap();
 
+    createMap();
     createColChart('acm')
-    if(binning == 'r'){
-        create_rLegend()
-    }else{
-        create_pLegend();
-    }
+    createLegend()
 })
 
+//Get trend data and create the chart.
 $.get(apiUrl+'/api/netx/trend', function(data){
     trendData = data;
     createTrendChart(visible_layer)
 })
+
+
 function createTrendChart(cause){
     $('#trend-chart').empty()
     var usTrend =[]
@@ -164,8 +139,7 @@ function createTrendChart(cause){
         .range(demoColors)
 
     var ticks = yScale.ticks()
-    // ticks = ticks.filter(tick => tick>min-10 && tick<max)
-    // ticks.push(min,max)
+
 
     var line = d3.line()
         .x(function(d,i){return xScale(d.year)+xScale.bandwidth()/2;})
@@ -213,10 +187,6 @@ function createTrendChart(cause){
         drawLine(causeTrend[i], i)
         annotations(causeTrend[i],i)
     }
-    // var tooltip = d3.select("body").append("div")
-    //         .attr("class", "tooltip")
-    //         .style("display","none")
-    //         .style("opacity", 0);
 
     function drawLine(dataset,i){
         svg.append('g')
@@ -262,13 +232,14 @@ function createTrendChart(cause){
 
 }
 
-
+//Get demographic data and draw gender and race bar charts
 $.get(apiUrl+'/api/netx/demo', function(data){
     demoData = data;
     console.log(demoData)
     createGenderChart('acm')
     createRaceChart('acm')
 })
+
 function createGenderChart(cause){
     $('#gender-chart').empty()
     var rawData = demoData.filter(data => data.cause == cause)[0]
@@ -480,24 +451,10 @@ function createRaceChart(cause){
 
 }
 
-
-
-function create_pLegend(){
-    $('#legend').empty()
-    for(var i=0; i<percent_legend.length; i++){
-        var leg_name= percent_legend[i].name
-        var color= percent_legend[i].color
-        var legend_item = $('<div class="legend-item">')
-        .append('<div class="leg-color" style="background-color:'+color+'" >')
-        .append('<p class="leg-text">'+leg_name+'</p>')
-    
-        $('#legend').append(legend_item)
-    }
-}
-function create_rLegend(){
+function createLegend(){
     var breaks = KEYS[visible_layer].breaks
     $('#legend').empty()
-    $('#legend').append('<div class="legend-item"><p class="leg-text">Unavailable</p><div class="leg-color" style="background-color:'+pColors[0]+'" ></div></div>')
+    $('#legend').append('<div class="legend-item"><p class="leg-text">Unavailable</p><div class="leg-color" style="background-color:'+rColors[0]+'" ></div></div>')
     for(var i=0; i<breaks.length; i++){
         if(i==0){
             var leg_name= 'Below '+breaks[i+1].toFixed(1)
@@ -518,7 +475,6 @@ function create_rLegend(){
     $('#legend').prepend('<p>'+KEYS[visible_layer].name +' rate per 100,000 deaths</p>')
 }
 
-var visible_layer = cause_keys[0];
 
 mapboxgl.accessToken = "pk.eyJ1Ijoia2FyaW1pZmFyIiwiYSI6ImNqOGtnaWp4OTBjemsyd211ZDV4bThkNmIifQ.Xg-Td2FFJso83Mmmc87NDA";
 var mapStyle = "mapbox://styles/karimifar/ckq8gyf5355lv17ns51r44nz8";
@@ -561,12 +517,12 @@ function createMap(){
         
         
         for (var i=0; i<cause_keys.length; i++){
-            addLayer(map,cause_keys[i],'p',pBreaks)
-            addLayer(map,cause_keys[i],'r',KEYS[cause_keys[i]].breaks)
+            // addLayer(map,cause_keys[i],'p',pBreaks)
+            addLayer(map,cause_keys[i],KEYS[cause_keys[i]].breaks)
             // console.log (i)
         }
         map.setLayoutProperty(
-            'county_fill_'+binning+'_'+cause_keys[0],
+            'county_fill_'+cause_keys[0],
             'visibility',
             'visible'
         )
@@ -642,57 +598,29 @@ function createMap(){
 
 
 
-function addLayer(themap, cause_id, type, breaks){
-    var id = 'county_fill_' + type+'_'+ cause_id;
-    if(type == 'p'){
-        themap.addLayer({
-            'id':id,
-            'type': 'fill',
-            'source': 'counties',
-            'layout': {
-                'visibility':'none'
-            },
-            'paint':{
-                'fill-color':[
-                    'step',
-                    ['get', cause_id+'_diff'],
-                    pColors[0],breaks[0],
-                    pColors[1],breaks[1], 
-                    pColors[2],breaks[2], 
-                    pColors[3],breaks[3], 
-                    pColors[4],breaks[4],
-                    pColors[5], breaks[5],
-                    pColors[6], breaks[6],
-                    pColors[7]
-                ],
-                'fill-opacity': 0.9
-            }
-    
-        },firstSymbolId)
+function addLayer(themap, cause_id, breaks){
+    var id = 'county_fill_'+ cause_id;
+    themap.addLayer({
+        'id':id,
+        'type': 'fill',
+        'source': 'counties',
+        'layout': {
+            'visibility':'none'
+        },
+        'paint':{
+            'fill-color':[
+                'step',
+                ['get', cause_id],
+                rColors[0],breaks[0],
+                rColors[1],breaks[1], 
+                rColors[2],breaks[2], 
+                rColors[3],breaks[3],
+                rColors[4]
+            ],
+            'fill-opacity': 0.9
+        }
 
-    }else{
-        themap.addLayer({
-            'id':id,
-            'type': 'fill',
-            'source': 'counties',
-            'layout': {
-                'visibility':'none'
-            },
-            'paint':{
-                'fill-color':[
-                    'step',
-                    ['get', cause_id],
-                    rColors[0],breaks[0],
-                    rColors[1],breaks[1], 
-                    rColors[2],breaks[2], 
-                    rColors[3],breaks[3],
-                    rColors[4]
-                ],
-                'fill-opacity': 0.9
-            }
-    
-        },firstSymbolId)
-    }
+    },firstSymbolId)
     
 
     themap.on("mousemove", id, function(e) {
@@ -772,63 +700,52 @@ function addLayer(themap, cause_id, type, breaks){
 function switchCause(){
     var selected_cause = $('#cause').val()
     switchVisibility (visible_layer, selected_cause)
-    if(binning == 'r'){
-        create_rLegend()
-    }else{
-        create_pLegend();
-    }
+    createLegend()
     createColChart(selected_cause)
     createTrendChart(selected_cause)
     createGenderChart(selected_cause)
     createRaceChart(selected_cause)
-    queryCounty(selectedCty)
+    if(selected){
+        queryCounty(selectedCty)
+    }
     $('.cause-name').text(KEYS[selected_cause].name)
 }
 
 
 function switchVisibility(a,b){
     map.setLayoutProperty(
-        'county_fill_'+binning+'_'+a,
+        'county_fill_'+a,
         'visibility',
         'none'
     )
     map.setLayoutProperty(
-        'county_fill_'+binning+'_'+b,
+        'county_fill_'+b,
         'visibility',
         'visible'
     )
     visible_layer = b;
 }
 
-function switchBin(){
-    map.setLayoutProperty(
-        'county_fill_'+binning+'_'+visible_layer,
-        'visibility',
-        'none'
-    )
-    if(binning == 'r'){
-        binning = 'p'
-    }else{
-        binning = 'r'
-    }
-    map.setLayoutProperty(
-        'county_fill_'+binning+'_'+visible_layer,
-        'visibility',
-        'visible'
-    )
-    if(binning == 'r'){
-        create_rLegend()
-    }else{
-        create_pLegend();
-    }
+// function switchBin(){
+//     map.setLayoutProperty(
+//         'county_fill_'+binning+'_'+visible_layer,
+//         'visibility',
+//         'none'
+//     )
+//     if(binning == 'r'){
+//         binning = 'p'
+//     }else{
+//         binning = 'r'
+//     }
+//     map.setLayoutProperty(
+//         'county_fill_'+binning+'_'+visible_layer,
+//         'visibility',
+//         'visible'
+//     )
+//     createLegend()
     
-}
-
-// if(binning == 'r'){
-//     create_rLegend()
-// }else{
-//     create_pLegend();
 // }
+
 
 function createColChart(id){
     
@@ -965,47 +882,51 @@ function createColChart(id){
 }
 
 function queryCounty(county){
-    selected = true;
-    selectedCty = county;
-    $('#fg-right-col').addClass('selected')
-    
-    if(selectedCtId || selectedCtId == 0){
-        map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
-    }
+    if(allCounties.indexOf(county.toLowerCase())>=0){
 
-    createRadarchart(county)
-    var countyFeatures = map.querySourceFeatures('counties', {
-        layer: 'county_fill_'+binning+'_acm',
-        filter: ['==', 'COUNTY', county]
-    });
-    var countyMap = countyFeatures[0]
-    selectedCtId = countyMap.id
-    var population = countyMap.properties.county_pop;
-    var percentDiff = countyMap.properties[visible_layer+'_diff'];
-    var causeRate = countyMap.properties[visible_layer];
-    var causeName = KEYS[visible_layer].name
-    $('#pop-name').text(county + ' County')
-    $('#pop-population').html('Population: <span>'+d3.format(',')(population)+'</span>')
-    $('#pop-causeName').html(causeName+' mortality rate:')
-    $('#pop-value').html(function(){
-        if(causeRate == -999){
-            return 'Unavailable'
-        }else{
-            return '<span>'+causeRate+'</span> per 100,000'
-        }
+        selected = true;
+        selectedCty = toTitleCase(county);
+        $('#fg-right-col').addClass('selected')
         
-    })
-    
-    $('#pop-percent').html(function(){
-        if (percentDiff>0){
-            return '<span>'+ percentDiff +'% above</span> state rate'
-        }else{
-            return Math.abs(percentDiff) + '% below</span> state rate'
+        if(selectedCtId || selectedCtId == 0){
+            map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
         }
-    })
 
-    map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: true}); 
+        createRadarchart(county)
+        var countyFeatures = map.querySourceFeatures('counties', {
+            layer: 'county_fill_acm',
+            filter: ['==', 'COUNTY', toTitleCase(county)]
+        });
+        var countyMap = countyFeatures[0]
+        selectedCtId = countyMap.id
+        var population = countyMap.properties.county_pop;
+        var percentDiff = countyMap.properties[visible_layer+'_diff'];
+        var causeRate = countyMap.properties[visible_layer];
+        var causeName = KEYS[visible_layer].name
+        $('#pop-name').text(selectedCty + ' County')
+        $('#pop-population').html('Population: <span>'+d3.format(',')(population)+'</span>')
+        $('#pop-causeName').html(causeName+' mortality rate:')
+        $('#pop-value').html(function(){
+            if(causeRate == -999){
+                return 'Unavailable'
+            }else{
+                return '<span>'+causeRate+'</span> per 100,000'
+            }
+            
+        })
+        
+        $('#pop-percent').html(function(){
+            if (percentDiff>0){
+                return '<span>'+ percentDiff +'% above</span> state rate'
+            }else{
+                return Math.abs(percentDiff) + '% below</span> state rate'
+            }
+        })
 
+        map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: true}); 
+    }else{
+        alert('Data not available')
+    }
 
 }
 
@@ -1040,12 +961,26 @@ if(!viewed){
 
 $('#deselect').on('click',function(){
     selected=false;
+    selectedCty = '';
     map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
     $('#fg-right-col').removeClass('selected')
 })
 
-// $('#search-bar').hover(function(){
-//     $(this).css('flex-grow',1)
-// },function(){
-//     $(this).css('flex-grow',0)
-// })
+$('#submit').on('click', function(e){
+    e.preventDefault();
+    var county = $('#main-input').val().toLowerCase();
+    queryCounty(county)
+    
+})
+
+
+
+//HELPER FUNCTIONS
+function toTitleCase(str) {
+    return str.replace(
+      /\w\S*/g,
+      function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      }
+    );
+}
