@@ -10,6 +10,7 @@ var demoData
 var demoColors = ["#ecb29e","#9b3557", "#420239"]
 var regions = [{region:'us', name:'US'}, {region:'tx', name:'Texas'}, {region:'netx', name:'Northeast Texas'}]
 var rColors = ['#ddd',"#98d1d1", "#54bebe", "#df979e", "#c80064"]
+var input = document.getElementById("main-input");
 
 // var binning = 'r'
 var ctyData;
@@ -43,6 +44,7 @@ var visible_layer = cause_keys[0];
 $.get(apiUrl+'/api/netx/all', function(data){
     ctyData = data;
     allCounties = ctyData.map(data => data.county.toLowerCase())
+    autocomplete(input, allCounties);
     for(var i=0; i<cause_keys.length; i++){
         var key = cause_keys[i]
         var percent = cause_keys[i]+'_diff'
@@ -107,7 +109,7 @@ function createTrendChart(cause){
     var causeTrend = [usTrend, stateTrend, netxTrend]
     // console.log(causeTrend)
 
-    var margin = {top: 30, right: 10, bottom: 20, left: 30};
+    var margin = {top: 20, right: 10, bottom: 20, left: 30};
     var width = 500;
     var height= 300;
     var domain =[];
@@ -235,7 +237,6 @@ function createTrendChart(cause){
 //Get demographic data and draw gender and race bar charts
 $.get(apiUrl+'/api/netx/demo', function(data){
     demoData = data;
-    console.log(demoData)
     createGenderChart('acm')
     createRaceChart('acm')
 })
@@ -250,19 +251,18 @@ function createGenderChart(cause){
         var dataObj = {region: region, name:name, gender:[parseFloat(rawData[region+'_f']), parseFloat(rawData[region+'_m'])]}
         data.push(dataObj)
     }
-    console.log(data)
-    var margin = {top: 30, right: 10, bottom: 20, left: 30};
+    var margin = {top: 20, right: 10, bottom: 30, left: 30};
     var width = 500;
     var height= 300;
     var innerW = width-margin.left-margin.right;
-    var barW = 20;
+    var barW = 24;
     var gap = 120;
     var padding = (innerW - 6*barW-gap)/2
     // console.log(padding,innerW)
     var max = d3.max(data, function(row){
         return d3.max(row.gender)
     })
-
+    console.log(data)
     var yScale = d3.scaleLinear()
         .domain([0,max+5])
         .range([height-margin.bottom, margin.top])
@@ -275,6 +275,11 @@ function createGenderChart(cause){
         .attr('viewBox', [0,0,width,height])
         .attr("preserveAspectRatio", "xMinYMin meet")
 
+    
+
+    for(var i =0; i<data.length; i++){
+        drawBars(data[i],i)
+    }
     svg.append("g")
         .attr("class", "x axis")
         // .attr("transform", "translate(0, "  + (height-margin.bottom) +")")
@@ -287,14 +292,14 @@ function createGenderChart(cause){
     svg.select('g.x')
         .append('text')
         .attr('x', margin.left+padding+1.5*barW)
-        .attr('y', height)
+        .attr('y', height-margin.bottom+18)
         .text('Female')
         .attr('text-anchor', 'middle')
         .style('font-size', '12px')
     svg.select('g.x')
         .append('text')
         .attr('x', width - margin.right-padding-1.5*barW)
-        .attr('y', height)
+        .attr('y', height-margin.bottom+18)
         .text('Male')
         .attr('text-anchor', 'middle')
         .style('font-size', '12px')
@@ -307,38 +312,36 @@ function createGenderChart(cause){
         .tickPadding(5)
         .tickSize(0)
     ); 
-
-    for(var i =0; i<data.length; i++){
-        drawBars(data[i],i)
-    }
-    for(var i =0; i<data.length; i++){
-        annotations(data[i],i)
-    }
     function drawBars(data,i){
         var region= data.region;
         svg.append('g')
-            .attr('class', 'bar-g bar-g-'+region)
+            .attr('class', 'bar-g-'+region)
             .selectAll()
             .data(data.gender).enter()
+            .append('g')
+            .attr('class', 'bar-g bar-region-'+region)
             .append('rect')
             .attr('class','bar-'+region)
-            .attr('x',function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
-            .attr('y',function(d,j){console.log(d);return yScale(d)})
+            .attr('x',function(d,j){return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
+            .attr('y',function(d,j){return yScale(d)})
             .attr('width',barW)
             .attr('height',function(d){return yScale(0)-yScale(d)})
             .style('fill', demoColor(data.name))
+
+            svg.selectAll('.bar-region-'+region)
+            .data(data.gender)
+            .append('text')
+            .text(function(d){return d})
+            .attr('x', function(d,j){return margin.left+(i*barW)+ padding + j*(gap+3*barW) +barW/2})
+            .attr('y', function(d,j){return yScale(d)-3})
+            .style('font-family', 'acumin-pro-extra-condensed, sans-serif')
+            .style('font-weight', '300')
+            // .attr("transform", "rotate(-90)" )
+            .style("text-anchor", "middle")
+            // .attr("transform-origin", function(d,j){ return margin.left+(i*barW)+ padding + j*(gap+3*barW)+'px '+yScale(d)+'px'} )
+            // .attr("dx", "1.4em")
+            // .attr("dy", "1em")
     }
-    function annotations(data,i){
-        var region= data.region;
-        svg.selectAll('.bar-g-'+region)
-        .selectAll()
-        .data(data.gender).enter()
-        .append('text')
-        .text(function(d){return d})
-        .attr('x', function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
-        .attr('y', function(d,j){console.log(d);return yScale(d)-2})
-    }
-    
 
 }
 
@@ -352,12 +355,12 @@ function createRaceChart(cause){
         var dataObj = {region: region, name:name, race:[parseFloat(rawData[region+'_w']), parseFloat(rawData[region+'_b']),parseFloat(rawData[region+'_h'])]}
         data.push(dataObj)
     }
-    console.log(data)
-    var margin = {top: 30, right: 10, bottom: 20, left: 30};
+
+    var margin = {top: 20, right: 10, bottom: 30, left: 30};
     var width = 500;
     var height= 300;
     var innerW = width-margin.left-margin.right;
-    var barW = 20;
+    var barW = 24;
     var gap = 60;
     var padding = (innerW - 9*barW-2*gap)/2
     // console.log(padding,innerW)
@@ -373,9 +376,13 @@ function createRaceChart(cause){
         .domain(['us','tx','netx'])
         .range(demoColors)
 
-    var svg = d3.select('#gender-chart').append('svg')
+    var svg = d3.select('#race-chart').append('svg')
         .attr('viewBox', [0,0,width,height])
         .attr("preserveAspectRatio", "xMinYMin meet")
+
+    for(var i =0; i<data.length; i++){
+        drawBars(data[i],i)
+    }
 
     svg.append("g")
         .attr("class", "x axis")
@@ -389,21 +396,21 @@ function createRaceChart(cause){
     svg.select('g.x')
         .append('text')
         .attr('x', margin.left+padding+1.5*barW)
-        .attr('y', height)
+        .attr('y', height-margin.bottom+18)
         .text('Non-Hispanic White')
         .attr('text-anchor', 'middle')
         .style('font-size', '12px')
     svg.select('g.x')
         .append('text')
         .attr('x', margin.left+padding+4.5*barW+gap)
-        .attr('y', height)
+        .attr('y', height-margin.bottom+18)
         .text('Non-Hispanic Black')
         .attr('text-anchor', 'middle')
         .style('font-size', '12px')
     svg.select('g.x')
         .append('text')
         .attr('x', margin.left+padding+7.5*barW+ 2*gap)
-        .attr('y', height)
+        .attr('y', height-margin.bottom+18)
         .text('Hispanic')
         .attr('text-anchor', 'middle')
         .style('font-size', '12px')
@@ -416,37 +423,34 @@ function createRaceChart(cause){
         .tickPadding(5)
         .tickSize(0)
     ); 
-
-    for(var i =0; i<data.length; i++){
-        drawBars(data[i],i)
-    }
-    for(var i =0; i<data.length; i++){
-        annotations(data[i],i)
-    }
     function drawBars(data,i){
         var region= data.region;
         svg.append('g')
-            .attr('class', 'bar-g bar-g-'+region)
+            .attr('class', 'bar-g-'+region)
             .selectAll()
             .data(data.race).enter()
+            .append('g')
+            .attr('class', 'bar-g bar-region-'+region)
             .append('rect')
             .attr('class','bar-'+region)
-            .attr('x',function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
-            .attr('y',function(d,j){console.log(d);return yScale(d)})
+            .attr('x',function(d,j){return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
+            .attr('y',function(d,j){return yScale(d)})
             .attr('width',barW)
             .attr('height',function(d){return yScale(0)-yScale(d)})
             .style('fill', demoColor(data.name))
+
+            svg.selectAll('.bar-region-'+region)
+            .data(data.race)
+            .append('text')
+            .text(function(d){return d})
+            .attr('x', function(d,j){return margin.left+(i*barW)+ padding + j*(gap+3*barW) +barW/2})
+            .attr('y', function(d,j){return yScale(d)-3})
+            .style('font-family', 'acumin-pro-extra-condensed, sans-serif')
+            .style('font-weight', '300')
+            // .attr("transform", "rotate(-90)" )
+            .style("text-anchor", "middle")
     }
-    function annotations(data,i){
-        var region= data.region;
-        svg.selectAll('.bar-g-'+region)
-        .selectAll()
-        .data(data.race).enter()
-        .append('text')
-        .text(function(d){return d})
-        .attr('x', function(d,j){console.log(j); return margin.left+(i*barW)+ padding + j*(gap+3*barW)})
-        .attr('y', function(d,j){console.log(d);return yScale(d)-2})
-    }
+
     
 
 }
@@ -499,13 +503,13 @@ function createMap(){
     
 
     map.on('load', function () {
-        var layers = map.getStyle().layers;
-        for (var i = 0; i < layers.length; i++) {
-            if (layers[i].type === 'symbol') {
-                firstSymbolId = layers[i].id;
-                break;
-            }
-        }
+        // var layers = map.getStyle().layers;
+        // for (var i = 0; i < layers.length; i++) {
+        //     if (layers[i].type === 'symbol') {
+        //         firstSymbolId = layers[i].id;
+        //         break;
+        //     }
+        // }
         // console.log(firstSymbolId)
         firstSymbolId = 'building-top-line'
         map.addSource("counties", {
@@ -518,8 +522,7 @@ function createMap(){
         
         for (var i=0; i<cause_keys.length; i++){
             // addLayer(map,cause_keys[i],'p',pBreaks)
-            addLayer(map,cause_keys[i],KEYS[cause_keys[i]].breaks)
-            // console.log (i)
+            addLayer(map,cause_keys[i], KEYS[cause_keys[i]].breaks)
         }
         map.setLayoutProperty(
             'county_fill_'+cause_keys[0],
@@ -579,16 +582,7 @@ function createMap(){
             }
         }, firstSymbolId);
 
-        
 
-        
-
-        // map.on("mouseenter", "county_fill_acm", function(e) {
-        //     var feature = e.features[0];
-        //     var coordinates = feature.geometry.coordinates.slice();
-        //     console.log(feature)
-        //     popup.setLngLat(coordinates).addTo(map);
-        // });
     })
 }
 
@@ -726,25 +720,6 @@ function switchVisibility(a,b){
     visible_layer = b;
 }
 
-// function switchBin(){
-//     map.setLayoutProperty(
-//         'county_fill_'+binning+'_'+visible_layer,
-//         'visibility',
-//         'none'
-//     )
-//     if(binning == 'r'){
-//         binning = 'p'
-//     }else{
-//         binning = 'r'
-//     }
-//     map.setLayoutProperty(
-//         'county_fill_'+binning+'_'+visible_layer,
-//         'visibility',
-//         'visible'
-//     )
-//     createLegend()
-    
-// }
 
 
 function createColChart(id){
@@ -841,7 +816,13 @@ function createColChart(id){
             .attr('data-target', (d,i)=>i)
             .attr('class', 'col-chart-bar')
             .attr('width', x.bandwidth())
-            .attr('fill', d => binColor(d.rate))
+            .attr('fill', d => {
+                if(d.rate){
+                    return binColor(d.rate)
+                   }else{
+                    return '#ddd'
+                }
+            })
             .attr('stroke', '#888')
             .attr('stroke-width', '0.1px')
 
@@ -853,7 +834,7 @@ function createColChart(id){
             .attr('x', (d,i)=> x(d.county)+margin.left+2)
             .attr("dy", "1em")
             .style("text-anchor", "middle")
-            .attr('y', d=>y(d.rate)-5)
+            .attr('y', d=> {if(d.rate){return y(d.rate)-5}})
             .style('font-size', '3px')
             .attr("class", (d,i)=> 'bar-label bar-label-rate label'+i )
 
@@ -984,3 +965,7 @@ function toTitleCase(str) {
       }
     );
 }
+
+$('#leg-us .leg-color').css('background', demoColors[0])
+$('#leg-tx .leg-color').css('background', demoColors[1])
+$('#leg-netx .leg-color').css('background', demoColors[2])

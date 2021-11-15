@@ -55,9 +55,36 @@
                 <div id="demo-data" class="collapsed">
                     <div id="demo-data-content" >
                         <h1> <span class="cause-name">All cause</span> demographic and trend data in Northeast Texas, Texas, and the US.</h1>
-                        <div id="trend-chart"></div>
-                        <div id="gender-chart"></div>
-                        <div id="race-chart"></div>
+                        <!-- <hr> -->
+                        <div class='d-flex' id="demo-legend">
+                            <div class="leg-item" id='leg-us'>
+                                <div class="leg-color"></div>
+                                <p>US</p>
+                            </div>
+                            <div class="leg-item" id='leg-tx'>
+                                <div class="leg-color"></div>
+                                <p>Texas</p>
+                            </div>
+                            <div class="leg-item" id='leg-netx'>
+                                <div class="leg-color"></div>
+                                <p>Northeast Texas</p>
+                            </div>
+                        </div>
+                        <div class="demo-chart">
+                            <h2>Trend data from 2005 to 2019</h2>
+                            <hr>
+                            <div id="trend-chart"></div>
+                        </div>
+                        <div class="demo-chart">
+                            <h2>Gender comparison</h2>
+                            <hr>
+                            <div id="gender-chart"></div>
+                        </div>
+                        <div class="demo-chart">
+                            <h2>Race and ethnicity comparison</h2>
+                            <hr>
+                            <div id="race-chart"></div>
+                        </div>
                     </div>
                     <div id="demo-data-handle">
                         <p>
@@ -157,6 +184,7 @@
     </div>
       
     <script src= "./assets/js/radarchart.js"></script>
+    <script src= "./assets/js/autocomplete.js"></script>
     <script src= "./assets/js/app.js"></script>
 </body>
 </html>
