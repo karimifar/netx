@@ -1,5 +1,58 @@
+@media only screen and (max-width: 1201px){
+
+}
+
 @media only screen and (max-width: 991px){
-    #right-col, #left-col{
+    #intro{
+        max-width: 100%;
+    }
+    #foreground{
+        position: relative;
+        display: flex;
+        height: fit-content;
+        flex-direction: column-reverse;
+    }
+    #demo-data{
+        position: relative;
+    }
+    #demo-data-content{
         width: 100%;
+    }
+    #demo-charts-wrap{
+        display: flex;
+    }
+    #demo-charts-wrap .demo-chart{
+        width:33.33%;
+        flex-grow: 1;
+    }
+    #demo-data.collapsed{
+        left: 0
+    }
+    #fg-left-col{
+        max-width: 100%;
+    }
+    #demo-data-handle{
+        display: none;
+    }
+
+    #background{
+        width: 100%;
+        height: 75vh;
+    }
+    #fg-right-col{
+        width:100%;
+    }
+}  
+
+@media only screen and (max-width: 768px){
+
+}
+
+@media only screen and (max-width: 667px){
+    #demo-charts-wrap .demo-chart{
+        width:100%;
+    }
+    #demo-charts-wrap{
+        flex-wrap: wrap;
     }
 }

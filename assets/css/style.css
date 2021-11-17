@@ -18,6 +18,7 @@ h1{
     font-weight: 700;
 }
 .content-wrap{
+    display: flex;
     flex-wrap: wrap;
 }
 #background{
@@ -45,6 +46,8 @@ h1{
     box-shadow: #aaa 0 0 5px;
     z-index: 3;
     transition: left 0.4s ease-in-out;
+    pointer-events: all;
+    display: flex;
 }
 .demo-chart{
     margin-bottom: 50px;
@@ -97,10 +100,7 @@ h1{
     left:0;
     bottom: 0;
 }
-#demo-data{
-    pointer-events: all;
-    display: flex;
-}
+
 #demo-data-content h1{
     font-size: 28px;
     font-weight: 300;
@@ -199,6 +199,7 @@ p#handle-arrow{
     position: absolute;
     bottom: 0;
     z-index: 2;
+    pointer-events: none;
 }
 #intro{
     padding: 40px;
@@ -332,13 +333,16 @@ p#handle-arrow{
     width: 100%;
     padding: 10px;
     /* height: 30%; */
-
 }
 #col-chart-svg-wrap{
     width: 100%;
     /* max-height: 100%; */
     padding-bottom: 25%;
     position: relative;
+
+}
+#col-chart rect{
+    pointer-events: all;
 }
 #col-chart svg{
     position: absolute;

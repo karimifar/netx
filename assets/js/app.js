@@ -109,7 +109,7 @@ function createTrendChart(cause){
     var causeTrend = [usTrend, stateTrend, netxTrend]
     // console.log(causeTrend)
 
-    var margin = {top: 20, right: 10, bottom: 20, left: 30};
+    var margin = {top: 20, right: 10, bottom: 30, left: 30};
     var width = 500;
     var height= 300;
     var domain =[];
