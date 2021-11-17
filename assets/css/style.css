@@ -125,7 +125,7 @@ h1{
 }
 #demo-data-handle p{
     writing-mode: vertical-lr;
-    /* width: max-content; */
+    width: max-content;
     font-size: 14px;
     align-self: center;
     text-transform: uppercase;
@@ -424,6 +424,7 @@ form{
 #search-bar:hover{
     flex-grow: 1;
 }
+
 #main-input{
     width: 100%;
     border: none;
