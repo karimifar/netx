@@ -25,7 +25,7 @@
         width:33.33%;
         flex-grow: 1;
     }
-    #demo-data.collapsed{
+    .collapsed #demo-data{
         left: 0
     }
     #fg-left-col{
@@ -41,6 +41,15 @@
     }
     #fg-right-col{
         width:100%;
+    }
+    #map-mask{
+        display: none;
+    }
+    .instruction{
+        display: none
+    }
+    #logos{
+        display: none;
     }
 }  
 

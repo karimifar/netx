@@ -495,7 +495,7 @@ function createMap(){
     map = new mapboxgl.Map({
         container: 'map',
         zoom: 6.5,
-        center: [-95.0, 31.2],
+        center: [-95.0, 31.6],
         maxZoom: 10,
         minZoom: 5.5,
         style: mapStyle
@@ -761,11 +761,6 @@ function createColChart(id){
         .domain([0,max])
         .range([height-margin.bottom, margin.top])
         
-
-    var yAxis = d3.axisBottom(y)
-    .tickPadding(10)
-    .tickSize(0)
-    .tickSizeOuter(0)
     
     var xAxis = d3.axisBottom(x)
     .tickPadding(5)
@@ -776,22 +771,6 @@ function createColChart(id){
     var svg = d3.select("#col-chart-svg-wrap").append("svg")
     .attr('viewBox', [0,0,width,height])
     .attr("preserveAspectRatio", "xMinYMin meet")
-    // .append("g")
-    // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-    
-
-    // svg.append("g")
-    //   .attr("class", "axisline")
-    //   .append('line')
-    //   .attr('x1', 0)
-    //   .attr('x2', width)
-    //   .attr('y1', height-margin.bottom)
-    //   .attr('y2', height-margin.bottom)
-    //   .style('stroke', '#000')
-    //   .style('stroke-width', '0.5px')
-
 
     var bar = svg.append('g')
         .attr('id', 'all-bars')
@@ -800,8 +779,6 @@ function createColChart(id){
         bar.exit().remove();
         bar.enter().append('rect')
         .merge(bar)
-        // .join('rect')
-            // .style('mix-blend-mode', 'multiply')
             .attr('x', d =>x(d.county)+margin.right)
             .attr('y', d => y(d.rate))
             .attr('height', d => {
@@ -809,11 +786,11 @@ function createColChart(id){
                     return y(0)-y(d.rate) 
                    }else{
                     return 0
-                }
-                
+                } 
             })
             .attr('id', (d,i)=>'bar'+i)
             .attr('data-target', (d,i)=>i)
+            .attr('data-county', (d,i)=>d.county.toLowerCase())
             .attr('class', 'col-chart-bar')
             .attr('width', x.bandwidth())
             .attr('fill', d => {
@@ -827,6 +804,28 @@ function createColChart(id){
             .attr('stroke-width', '0.1px')
 
         svg.select('#all-bars')
+            .selectAll('rect.bar-outline')
+            .data(data)
+            .join('rect')
+            .attr('x', d =>x(d.county)+margin.right)
+            .attr('y', d => y(d.rate))
+            .attr('height', d => {
+                if(d.rate){
+                    return y(0)-y(d.rate) 
+                   }else{
+                    return 0
+                } 
+            })
+            .attr('id', (d,i)=>'bar'+i)
+            .attr('data-target', (d,i)=>i)
+            .attr('data-county', (d,i)=>d.county.toLowerCase())
+            .attr('class', 'bar-outline')
+            .attr('width', x.bandwidth())
+            .attr('fill', 'none')
+            .attr('stroke', '#000')
+            .attr('stroke-width', '0.25px')
+            .attr('opacity', '0')
+        svg.select('#all-bars')
             .selectAll('text')
             .data(data)
             .join('text')
@@ -837,6 +836,7 @@ function createColChart(id){
             .attr('y', d=> {if(d.rate){return y(d.rate)-5}})
             .style('font-size', '3px')
             .attr("class", (d,i)=> 'bar-label bar-label-rate label'+i )
+            .attr("data-county", (d,i)=> d.county.toLowerCase())
 
 
     svg.append("g")
@@ -853,26 +853,37 @@ function createColChart(id){
       .style('font-size','2.6px')
 
     $('.col-chart-bar').hover(function(){
-        var target = '.label' + $(this).data('target')
-        // console.log(target)
-        $(target).css('opacity', '1')
+        var target = $(this).data('target')
+        $('.bar-outline[data-target='+target+']').css('opacity', 1)
+        $('.label'+target).css('opacity', '1')
     }, function(){
-        var target = '.label' + $(this).data('target')
-        $(target).css('opacity', '0')
+        if(selected && $(this).data('county')==selectedCty.toLowerCase()){
+            return
+        }
+        var target = $(this).data('target')
+        $('.bar-outline[data-target='+target+']').css('opacity', 0)
+        $('.label'+target).css('opacity', '0')
+    })
+
+    $('.col-chart-bar').on('click',function(){
+        var countyName = $(this).data('county')
+        queryCounty(countyName)
     })
 }
 
 function queryCounty(county){
     if(allCounties.indexOf(county.toLowerCase())>=0){
 
+        if(selected){
+            map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false});
+            $('.bar-outline[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
+        $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
+        }
+        $('#fg-right-col').addClass('selected')
         selected = true;
         selectedCty = toTitleCase(county);
-        $('#fg-right-col').addClass('selected')
-        
-        if(selectedCtId || selectedCtId == 0){
-            map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
-        }
-
+        $('.bar-outline[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '1')
+        $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '1')
         createRadarchart(county)
         var countyFeatures = map.querySourceFeatures('counties', {
             layer: 'county_fill_acm',
@@ -925,7 +936,10 @@ var radarState = [
 ]
 // RadarChart("#radarChart", radarState)
 $('#demo-data-handle').on('click', function(){
-    $('#demo-data').toggleClass('collapsed')
+    $('#content-wrap').toggleClass('collapsed')
+})
+$('#map-mask').on('click', function(){
+    $('#content-wrap').toggleClass('collapsed')
 })
 
 
@@ -934,13 +948,9 @@ $('.modal-toggle').on('click', function(){
 })
 
 
-var viewed = sessionStorage.getItem('viewed');
-if(!viewed){
-    $('#intro').toggleClass('closed')
-    sessionStorage.setItem('viewed', true);
-}
-
 $('#deselect').on('click',function(){
+    $('.bar-outline[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
+    $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
     selected=false;
     selectedCty = '';
     map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
@@ -969,3 +979,20 @@ function toTitleCase(str) {
 $('#leg-us .leg-color').css('background', demoColors[0])
 $('#leg-tx .leg-color').css('background', demoColors[1])
 $('#leg-netx .leg-color').css('background', demoColors[2])
+
+
+function setInstruction(){
+    var causeTop = $('#select-cause').offset().top
+    $('#cause-inst').css('top', causeTop+10)
+}
+setInstruction();
+window.onresize = function(event) {
+    setInstruction();
+};
+
+
+var viewed = sessionStorage.getItem('viewed');
+if(!viewed){
+    $('body').addClass('first-view')
+    sessionStorage.setItem('viewed', true);
+}

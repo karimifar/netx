@@ -212,7 +212,7 @@ function RadarChart(id, data, options) {
         .attr("d", function(d,i) { return radarLine(d); })
         .style("fill", function(d,i) { return color; })
         .style("fill-opacity", cfg.opacityArea)
-        .style("mix-blend-mode", 'multiply')
+        .style("mix-blend-mode", 'hard-light')
 
     blobWrapper
     .on('mouseover', function (){
@@ -337,7 +337,7 @@ function RadarChart(id, data, options) {
         state.append('<div class="radar-leg-color state-color">')
         state.append('<span>State Average</span>')
     var countyLeg = $('<div class="radar-legend-item cty-leg">')
-        countyLeg.append('<div class="radar-leg-color cty-color" style="background:'+color+';">')
+        countyLeg.append('<div class="radar-leg-color cty-color" style="background:#BC42AB;">')
         countyLeg.append('<span>'+cfg.county+' County</span>')
 
     radarLegend.append(state)

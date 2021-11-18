@@ -28,11 +28,11 @@
     <title>Mortality Rates in North East Texas</title>
 </head>
 <body>
-    <div class="content-wrap">
+    <div id="content-wrap" class="collapsed">
         <div id="foreground">
             
             <div id="fg-left-col">
-                <div id="demo-data" class="collapsed">
+                <div id="demo-data" class="">
                     <div id="demo-data-content" >
                         <h1> <span class="cause-name">All cause</span> demographic and trend data in Northeast Texas, Texas, and the US.</h1>
                         <!-- <hr> -->
@@ -72,11 +72,12 @@
                     </div>
                     <div id="demo-data-handle">
                         <p>
-                            Trend & demographic data
+                            Trend & demographic data <br>
+                            <i id='handle-arrow' class="fas fa-chevron-right"></i>
                         </p>
-                        <p id='handle-arrow'>
+                        <!-- <p id='handle-arrow'>
                             <i class="fas fa-chevron-right"></i>
-                        </p>
+                        </p> -->
                     </div>
                 </div>
                 <!-- <div id="search">
@@ -181,6 +182,12 @@
                 <div id="legend"></div>
             </div>
 
+            <div id="map-mask">
+            </div>
+            <div class="instruction" id="demo-inst">
+                Click on the left bar for trend & demographic data
+                <p><i class="fas fa-arrow-left"></i></p>
+            </div>
             
         </div>
         
