@@ -851,6 +851,7 @@ function createColChart(id){
       .attr("transform", "rotate(-45)" )
       .attr("class", (d,i)=> 'bar-label bar-label-cty' )
       .style('font-size','2.6px')
+      .attr("data-county", (d,i)=> d.toLowerCase())
 
     $('.col-chart-bar').hover(function(){
         var target = $(this).data('target')
@@ -877,14 +878,18 @@ function queryCounty(county){
         if(selected){
             map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false});
             $('.bar-outline[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
-        $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
+            $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
+            $('.bar-label[data-county="'+selectedCty.toLowerCase()+'"]').css('font-weight', '400')
         }
+
         $('#fg-right-col').addClass('selected')
+        createRadarchart(county)
         selected = true;
         selectedCty = toTitleCase(county);
         $('.bar-outline[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '1')
         $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '1')
-        createRadarchart(county)
+        $('.bar-label[data-county="'+selectedCty.toLowerCase()+'"]').css('font-weight', '700')
+        
         var countyFeatures = map.querySourceFeatures('counties', {
             layer: 'county_fill_acm',
             filter: ['==', 'COUNTY', toTitleCase(county)]

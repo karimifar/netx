@@ -46,13 +46,13 @@ function RadarChart(id, data, options) {
     var cfg = {
         w: 600,				//Width of the circle
         h: 600,				//Height of the circle
-        margin: {top: 100, right: 100, bottom: 100, left: 100}, //The margins of the SVG
+        margin: {top: 100, right: 110, bottom: 100, left: 110}, //The margins of the SVG
         levels: 1,				//How many levels or inner circles should there be drawn
         maxValue: 140, 			//What is the value that the biggest circle will represent
         labelFactor: 1.15, 	//How much farther than the radius of the outer circle should the labels be placed
         wrapWidth: 100, 		//The number of pixels after which a label needs to be given a new line
         opacityArea: 0.55, 	//The opacity of the area of the blob
-        dotRadius: 5, 			//The size of the colored circles of each blog
+        dotRadius: 7, 			//The size of the colored circles of each blog
         opacityCircles: 0.7, 	//The opacity of the circles of each blob
         strokeWidth: 2, 		//The width of the stroke around each blob
         roundStrokes: true,	//If true the area and stroke will follow a round path (cardinal-closed)
@@ -116,18 +116,6 @@ function RadarChart(id, data, options) {
         .style("fill-opacity", cfg.opacityCircles)
         // .style("filter" , "url(#glow)");
 
-    //Text indicating at what % each level is
-	// axisGrid.selectAll(".axisLabel")
-    //     .data(d3.range(1,(cfg.levels+1)).reverse())
-    //     .enter().append("text")
-    //     .attr("class", "axisLabel")
-    //     .attr("x", 4)
-    //     .attr("y", function(d){return -d*radius/cfg.levels;})
-    //     .attr("dy", "0.4em")
-    //     .style("font-size", "10px")
-    //     .attr("fill", "#737373")
-    //     .text(function(d,i) { return Format(maxValue * d/cfg.levels)+'%'; });
-
     // Draw the axes
     //Create the straight lines radiating outward from the center
 	var axis = axisGrid.selectAll(".axis")
@@ -142,13 +130,32 @@ function RadarChart(id, data, options) {
 		.attr("x2", function(d, i){ return rScale(maxValue*1.1) * Math.cos(angleSlice*i - Math.PI/2); })
 		.attr("y2", function(d, i){ return rScale(maxValue*1.1) * Math.sin(angleSlice*i - Math.PI/2); })
 		.attr("class", "line")
-		.style("stroke", "#ddd")
-		.style("stroke-width", "2px");
+		.style("stroke", (d,i) => {
+            if(data[0][i].key == visible_layer){
+                return '#888'
+            }else{
+                return '#ddd'
+            }
+        })
+		.style("stroke-width", (d,i) => {
+            if(data[0][i].key == visible_layer){
+                return '2px'
+            }else{
+                return '2px'
+            }
+        });
 
     //Append the labels at each axis
 	axis.append("text")
         .attr("class", "legend")
         .style("font-size", "20px")
+        .style('font-weight', (d,i) => {
+            if(data[0][i].key == visible_layer){
+                return '700'
+            }else{
+                return '500'
+            }
+        })
         .attr("text-anchor", function(d, i){
             if(i==0 || i==3){
                 return 'middle'
@@ -171,6 +178,7 @@ function RadarChart(id, data, options) {
         .attr("y", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice*i - Math.PI/2); })
         .text(function(d){return d})
         .call(wrap, cfg.wrapWidth);
+        
 
     var stateBlob = d3.lineRadial()
         .curve(d3.curveLinearClosed)
@@ -184,7 +192,7 @@ function RadarChart(id, data, options) {
         .attr("class", "zeroBlob") 
         .append("path")
 
-        .attr("d", function(d,i){console.log(stateBlob(d));return stateBlob(d)})
+        .attr("d", function(d,i){return stateBlob(d)})
         .style("fill", function(d,i) { return '#bbb'; })
         .style("fill-opacity", cfg.opacityArea)
         .style("mix-blend-mode", 'multiply')
@@ -209,37 +217,52 @@ function RadarChart(id, data, options) {
 	blobWrapper
         .append("path")
         .attr("class", "radarArea")
-        .attr("d", function(d,i) { return radarLine(d); })
+        
         .style("fill", function(d,i) { return color; })
         .style("fill-opacity", cfg.opacityArea)
         .style("mix-blend-mode", 'hard-light')
+        .attr("d", function(d,i){
+            if(selected && selectedCty.toLowerCase() == cfg.county.toLowerCase()){
+            return radarLine(d)
+        }else{
+            return stateBlob(d)
+        }})
+        .transition().ease(d3.easeCubicOut).duration(500)
+        .attr("d", function(d,i) { return radarLine(d); })
 
-    blobWrapper
-    .on('mouseover', function (){
-        //Dim all blobs
-        // console.log(d3.select(this))
-        d3.selectAll(".radarArea")
-            .transition().duration(200)
-            .style("fill-opacity", 0.1); 
-        //Bring back the hovered over blob
-        d3.select(this).select('.radarArea')
-            .transition().duration(200)
-            .style("fill-opacity", 0.7);	
-    })
-    .on('mouseout', function(){
-        //Bring back all blobs
-        d3.selectAll(".radarArea")
-            .transition().duration(200)
-            .style("fill-opacity", cfg.opacityArea);
-    });
+    // blobWrapper
+    // .on('mouseover', function (){
+    //     //Dim all blobs
+    //     // console.log(d3.select(this))
+    //     d3.selectAll(".radarArea")
+    //         .transition().duration(200)
+    //         .style("fill-opacity", 0.1); 
+    //     //Bring back the hovered over blob
+    //     d3.select(this).select('.radarArea')
+    //         .transition().duration(200)
+    //         .style("fill-opacity", 0.7);	
+    // })
+    // .on('mouseout', function(){
+    //     //Bring back all blobs
+    //     d3.selectAll(".radarArea")
+    //         .transition().duration(200)
+    //         .style("fill-opacity", cfg.opacityArea);
+    // });
     
     //Create the outlines	
 	blobWrapper.append("path")
         .attr("class", "radarStroke")
-        .attr("d", function(d,i) { return radarLine(d); })
         .style("stroke-width", cfg.strokeWidth + "px")
         .style("stroke", function(d,i) { return color; })
         .style("fill", "none")
+        .attr("d", function(d,i){
+            if(selected && selectedCty.toLowerCase() == cfg.county.toLowerCase()){
+            return radarLine(d)
+        }else{
+            return stateBlob(d)
+        }})
+        .transition().ease(d3.easeCubicOut).duration(500)
+        .attr("d", function(d,i) { return radarLine(d); })
         // .style("filter" , "url(#glow)");
 
     //Append the circles
@@ -248,10 +271,23 @@ function RadarChart(id, data, options) {
         .enter().append("circle")
         .attr("class", "radarCircle")
         .attr("r", function(d,i){ if(d.value){return cfg.dotRadius}})
+        .style("fill", function(d,i,j) { return color; })
+        .style("fill-opacity", 0.8)
+        
+        .attr("cx", function(d,i){ return rScale(0) * Math.cos(angleSlice*i - Math.PI/2); })
+        .attr("cy", function(d,i){ return rScale(0) * Math.sin(angleSlice*i - Math.PI/2); })
+        .transition()
+        .ease(d3.easeCubicOut)
+        .duration(function(){
+            if(selected && selectedCty.toLowerCase() == cfg.county.toLowerCase()){
+                return 0
+            }else{
+                return 500
+            }
+        })
+        
         .attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
         .attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
-        .style("fill", function(d,i,j) { return color; })
-        .style("fill-opacity", 0.8);
 
     // blobWrapper.selectAll(".radarCircle")
     //     .data(data)
@@ -269,7 +305,7 @@ function RadarChart(id, data, options) {
         .data(function(d,i) { return d; })
         .enter().append("circle")
         .attr("class", "radarInvisibleCircle")
-        .attr("r", cfg.dotRadius*1.5)
+        .attr("r", cfg.dotRadius*2)
         .attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
         .attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
         .style("fill", "none")
@@ -288,10 +324,12 @@ function RadarChart(id, data, options) {
                         return Format(Math.abs(i.value))+'% below state rate'
                     }
                 })
+                
                 .attr('text-anchor','middle')
                 .transition().duration(200)
                 .style('opacity', 1)
                 .style('font-size','18px')
+                
         })
         .on("mouseout", function(){
             tooltip.transition().duration(200)
@@ -301,7 +339,8 @@ function RadarChart(id, data, options) {
     //Set up the small tooltip for when you hover over a circle
 	var tooltip = g.append("text")
         .attr("class", "tooltip")
-        .style("opacity", 0);
+        .style("opacity", '0')
+        
 
 	/////////////////// Helper Function /////////////////////
 	//Taken from http://bl.ocks.org/mbostock/7555321

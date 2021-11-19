@@ -356,6 +356,8 @@ h1{
 .bar-label{
     transition: all 0.2s ease-in-out;
     opacity: 0;
+    font-family: acumin-pro-condensed, sans-serif
+
 }
 .bar-label-cty{
     opacity: 1;
@@ -711,9 +713,7 @@ select{
     pointer-events: none;
     /* display: none; */
 }
-.first-view .instruction{
-    display: block;
-}
+
 #demo-inst{
     left: 70px;
     top: 10px
