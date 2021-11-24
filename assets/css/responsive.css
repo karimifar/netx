@@ -10,6 +10,9 @@
         max-width: 100%;
         padding: 30px 20px;
     }
+    #search-bar{
+        flex-grow: 1;
+    }
     #intro h1{
         max-width: 600px;
     }

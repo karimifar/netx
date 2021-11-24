@@ -322,6 +322,7 @@ h1{
 .radar-legend-item{
     display: flex;
     font-size: 10px;
+    text-transform: capitalize;
 }
 .radar-leg-color{
     width:20px;

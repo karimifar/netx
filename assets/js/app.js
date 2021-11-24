@@ -886,6 +886,7 @@ function queryCounty(county){
         createRadarchart(county)
         selected = true;
         selectedCty = toTitleCase(county);
+        $('#main-input').val(selectedCty)
         $('.bar-outline[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '1')
         $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '1')
         $('.bar-label[data-county="'+selectedCty.toLowerCase()+'"]').css('font-weight', '700')
@@ -958,6 +959,7 @@ $('#deselect').on('click',function(){
     $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
     selected=false;
     selectedCty = '';
+    $('#main-input').val(selectedCty)
     map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: false}); 
     $('#fg-right-col').removeClass('selected')
 })
