@@ -20,6 +20,7 @@ h1{
 #content-wrap{
     display: flex;
     flex-wrap: wrap;
+    overflow: hidden;
 }
 #background{
     width: 65%;
@@ -32,7 +33,7 @@ h1{
     display: flex;
     width: 100%;
     height: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
     pointer-events: none;
     z-index: 3;
 }
@@ -91,9 +92,13 @@ h1{
 }
 #fg-left-col{
     width: 100%;
+    height: 100%;
     max-width: 580px;
     pointer-events: none;
-    position: relative;
+    position: fixed;
+    left: 0;
+    top:0;
+    z-index: 10;
     /* background: red; */
 }
 #fg-mid-col{
@@ -193,7 +198,7 @@ h1{
 #col-chart-wrap{
     width: 100%;
     height: fit-content;
-    overflow: scroll;
+    /* overflow: scroll; */
     position: absolute;
     bottom: 0;
     z-index: 2;
@@ -211,7 +216,7 @@ h1{
     font-family: acumin-pro-wide, sans-serif;
     font-weight: 800;
     color: #E2C4BD;
-    line-height: 48px;
+    line-height: 1em;
 }
 
 .selected #intro{
@@ -723,4 +728,8 @@ select{
 }
 #demo-inst p {
     margin-bottom: 0;
+}
+
+.mapboxgl-ctrl-logo{
+    display: none !important;
 }

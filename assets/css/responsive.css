@@ -3,8 +3,18 @@
 }
 
 @media only screen and (max-width: 991px){
+    #content-wrap{
+        overflow: hidden;
+    }
     #intro{
         max-width: 100%;
+        padding: 30px 20px;
+    }
+    #intro h1{
+        max-width: 600px;
+    }
+    #intro p{
+        /* max-width: 600px; */
     }
     #foreground{
         position: relative;
@@ -12,11 +22,24 @@
         height: fit-content;
         flex-direction: column-reverse;
     }
+    #toolbar{
+        padding: 20px 10px;
+       
+        margin: 0;
+        margin-bottom: 4px;
+        border-radius: 0px;
+        /* border-bottom: 2px solid #2e2438; */
+    }
     #demo-data{
         position: relative;
+        box-shadow: none;
     }
     #demo-data-content{
         width: 100%;
+    }
+    #demo-data-content h1{
+        background-color: #2E2438;
+        color: #faf3f1
     }
     #demo-charts-wrap{
         display: flex;
@@ -30,6 +53,8 @@
     }
     #fg-left-col{
         max-width: 100%;
+        position: relative;
+        margin-top: 4px;
     }
     #demo-data-handle{
         display: none;
@@ -37,7 +62,27 @@
 
     #background{
         width: 100%;
+        /* padding: 20px; */
         height: 75vh;
+    }
+    #map{
+        width: 80%;
+        max-width: 550px;
+        margin: auto;
+        border: none;
+        /* border-radius: 20px;
+        overflow: hidden; */
+    }
+    #map-gradient{
+        display: none;
+    }
+    #map-control{
+        right: 0px;
+        top: 10px;
+    }
+    #col-chart-wrap{
+        margin-left: -5%;
+        width: 108%;
     }
     #fg-right-col{
         width:100%;
@@ -54,14 +99,23 @@
 }  
 
 @media only screen and (max-width: 768px){
-
-}
-
-@media only screen and (max-width: 667px){
+    #intro{
+        padding: 30px 10px;
+    }
+    #intro h1{
+        font-size: 36px;
+    }
+    #intro p{
+        font-size: 16px;
+    }
     #demo-charts-wrap .demo-chart{
         width:100%;
     }
     #demo-charts-wrap{
         flex-wrap: wrap;
     }
+}
+
+@media only screen and (max-width: 667px){
+   
 }
