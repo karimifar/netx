@@ -1,0 +1,45 @@
+@media only screen and (max-width: 1201px){
+    .col-credit{
+        width: 60%
+    }
+    .col-report{
+        width: 40%;
+    }
+}
+@media only screen and (max-width: 991px){
+    header{
+        padding: 10% 20px 2%;
+    }
+    #about-content{
+        padding: 20px;
+    }
+}
+@media only screen and (max-width: 768px){
+    .two-col {
+        font-size: 14px;
+    }
+    h1{
+        font-size: 36px;
+    }
+    h1 span{
+        font-size: 36px;
+    }
+}
+
+@media only screen and (max-width: 667px){
+    .two-col{
+        flex-wrap: wrap;
+    }
+    .col-credit{
+        width: 100%
+    }
+    .col-report{
+        display: none;
+    }
+    header{
+        padding: 10% 10px 2%;
+    }
+    #about-content{
+        padding: 10px;
+    }
+}

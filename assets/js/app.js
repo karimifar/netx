@@ -3,7 +3,7 @@ var firstSymbolId;
 var hoveredCtId;
 var selectedCtId;
 var selectedCty;
-var apiUrl =  'https://texashealthdata.com' //'http://localhost:3306'
+var apiUrl =   'https://texashealthdata.com'
 var selected = false;
 var trendData;
 var demoData
@@ -133,7 +133,7 @@ function createTrendChart(cause){
         .range([margin.left,width-margin.right])
 
     var yScale = d3.scaleLinear()
-        .domain([min-5,max+5])
+        .domain([0,max+5])
         .range([height-margin.bottom, margin.top])
 
     var demoColor = d3.scaleOrdinal()
@@ -476,7 +476,7 @@ function createLegend(){
     
         $('#legend').prepend(legend_item)
     }
-    $('#legend').prepend('<p>'+KEYS[visible_layer].name +' rate per 100,000 deaths</p>')
+    $('#legend').prepend('<p>'+KEYS[visible_layer].name +' mortality rate per 100,000<br>3-year average: 2017-2019</p>')
 }
 
 
@@ -618,6 +618,8 @@ function addLayer(themap, cause_id, breaks){
     
 
     themap.on("mousemove", id, function(e) {
+        themap.getCanvas().style.cursor = "pointer";
+
         if(e.features.length >0){
             if(hoveredCtId>=0){
                 themap.setFeatureState({source: 'counties', id: hoveredCtId}, { hover: false}); 
@@ -625,7 +627,7 @@ function addLayer(themap, cause_id, breaks){
                     map.setFeatureState({source: 'counties', id: selectedCtId}, { hover: true}); 
                 }
             }
-            themap.getCanvas().style.cursor = "pointer";
+            
             hoveredCtId = e.features[0].id;
             var county = e.features[0].properties.COUNTY;
             var population = e.features[0].properties.county_pop;
@@ -662,6 +664,7 @@ function addLayer(themap, cause_id, breaks){
         
     })
     themap.on("mouseleave", id, function(){
+        themap.getCanvas().style.cursor = "grab";
         if(hoveredCtId>=0){
             themap.setFeatureState(
                 {source:'counties', id: hoveredCtId},
@@ -794,6 +797,12 @@ function createColChart(id){
             .attr('class', 'col-chart-bar')
             .attr('width', x.bandwidth())
             .attr('fill', d => {
+                if(d.county == 'U.S.'){
+                    return '#ddd'
+                }
+                if(d.county == 'Texas'){
+                    return '#ccc'
+                }
                 if(d.rate){
                     return binColor(d.rate)
                    }else{
@@ -868,6 +877,9 @@ function createColChart(id){
 
     $('.col-chart-bar').on('click',function(){
         var countyName = $(this).data('county')
+        if(countyName=='u.s.' || countyName == 'texas'){
+            return;
+        }
         queryCounty(countyName)
     })
 }
