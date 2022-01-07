@@ -172,7 +172,7 @@ h1{
 #fg-right-col.selected{
     /* background-color: transparent; */
 }
-#logos{
+.logos{
     display: flex;
     justify-content: flex-end;
 }
@@ -181,8 +181,12 @@ h1{
     max-width: 300px;
 }
 #uthct{
-    max-width: 150px;
+    max-width: 200px;
     padding: 20px;
+    min-width: 150px
+}
+#uts-logo{
+    min-width: 200px;
 }
 .mapboxgl-ctrl-bottom-right{
     display: none;
@@ -562,7 +566,7 @@ select{
     z-index: 10;
     bottom: 10px;
     right: 10px; */
-
+    max-width: 250px;
     width: 100%;
     /* background-color: #ffffffee; */
     padding: 10px;

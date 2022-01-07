@@ -14,8 +14,21 @@
 
     gtag('config', 'G-PMQW88XMCV');
     </script>
+
+    <!-- social share meta tags -->
+    <meta property="og:title" content="2021 Health Status Report of Northeast Texas">
+    <meta property="og:description" content="This interactive tool is a digital complement to The Health Status of Northeast Texas, 2021 report. It visualizes county-level age-adjusted mortality rates for the 35-county area also referred to as the DSHS Health Service Region 4/5, and compares rates for the counties and region to the state and nation.">
+    <meta property="og:image" content="https://utsystem.edu/netx/assets/img/thumbnail.jpg">
+    <meta property="og:url" content="https://utsystem.edu/netx">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:site_name" content="2021 Health Status Report of Northeast Texas">
+    <meta name="twitter:image" content="https://utsystem.edu/netx/assets/img/thumbnail.jpg">
+    <!--  Non-Essential, But Required for Analytics -->
+    <meta property="fb:app_id" content="karimifar" />
+    <meta name="twitter:site" content="@karimifar19">
+
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel="stylesheet" href="./assets/css/fa-all.css">
     <link rel="stylesheet" href="https://use.typekit.net/ajp4dmz.css">
     <!-- BOOTSTRAP CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -33,7 +46,9 @@
     
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/responsive.css">
-    <title>Mortality Rates in North East Texas</title>
+    <title>2021 Health Status Report of Northeast Texas</title>
+    <link rel="shortcut icon" href="./favicon.png" type="image/x-icon">
+    <link rel="icon" href="./favicon.png" type="image/x-icon">
 </head>
 <body>
     <div id="content-wrap" class="collapsed">
@@ -45,15 +60,15 @@
                 <div id="intro" class="closed">
                     <!-- <h1>Health Status of Northeast Texas</h1> -->
                     <div id="intro-modal">
-                        <h1>Health Status of Northeast Texas</h1>
+                        <h1>2021 Health Status Report of Northeast Texas</h1>
                         <p>
-                            This interactive tool is a digital complement to the 2021 Northeast Texas Health Status Report. It is intended to provide a reference for stakeholders in Northeast Texas, the 35-county area also referred to as the DSHS Health Service Region 4/5. It provides and contextualizes data for all-cause mortality as well as the top five leading causes of death in the region.
+                            This interactive tool is a digital complement to The Health Status of Northeast Texas, 2021 report. It visualizes county-level age-adjusted mortality rates for the 35-county area also referred to as the DSHS Health Service Region 4/5, and compares rates for the counties and region to the state and nation. 
                         </p>
 
                     </div>
                     <div id="buttons">
                         <button class=''><i class="fas fa-info-circle"></i> <a href="./about/">Learn more</a></button>
-                        <button class=''><i class="far fa-file-pdf"></i> <a href="./netx21.pdf">Download report</a></button>    
+                        <button class=''><i class="far fa-file-pdf"></i> <a target="_blank" href="./netx21.pdf">Download report</a></button>    
                     </div>
                     <p id="instructions">
                         To get started, click on a county on the map or search by name below. Use the drop-down to see the data for other causes of mortality.
@@ -63,18 +78,18 @@
                             <label class="control-head">Select mortality cause:</label>
             
                             <select name="causes" id="cause" onchange="switchCause()">
-                                <option value="acm">All Cause</option>
-                                <option value="can">Cancer</option>
-                                <option value="uni">Unintentional Injury</option>
-                                <option value="clr">Respiratory Disease</option>
+                                <option value="acm">All-Cause</option>
                                 <option value="hea">Heart Disease</option>
+                                <option value="can">Cancer</option>
+                                <option value="clr">Chronic Lower Respiratory Disease</option>
+                                <option value="uni">Unintentional Injury</option>
                                 <option value="str">Stroke</option>
                             </select>
             
             
                         </div>
                         <div class='control' id="search-bar">
-                            <input class="input control-element" id="main-input" autocomplete="off" type="text" required>
+                            <input class="input control-element" id="main-input" autocomplete="off" type="text" required autofocus>
                             <button class="control-element" type='submit' id="submit"><i class="fas fa-search"></i></button>    
                         </div>
                     </form>
@@ -103,11 +118,11 @@
                     <div id="toolbar-spacer"></div>
                 </div>
 
-                <div id="logos">
+                <div id="logos-home" class="logos">
                     <div id="uthct" class="logo-wrap">
                         <img src="./assets/img/uthct.png" alt="">
                     </div>
-                    <div class="logo-wrap">
+                    <div id="uts-logo" class="logo-wrap">
                         <img src="./assets/img/uts.png" alt="">
                     </div>
                 </div>
@@ -144,36 +159,37 @@
         <div id="fg-left-col">
             <div id="demo-data" class="">
                 <div id="demo-data-content" >
-                    <h1> <span class="cause-name">All cause</span> demographic and trend data in Northeast Texas, Texas, and the US.</h1>
+                    <h1>Age-adjusted <span class="cause-name">All-Cause</span> mortality rates:  regional, state, and national comparisons.</h1>
                     <!-- <hr> -->
                     <div class='d-flex' id="demo-legend">
-                        <div class="leg-item" id='leg-us'>
+                        <div class="leg-item" id='leg-netx'>
                             <div class="leg-color"></div>
-                            <p>US</p>
+                            <p>Northeast Texas</p>
                         </div>
                         <div class="leg-item" id='leg-tx'>
                             <div class="leg-color"></div>
                             <p>Texas</p>
                         </div>
-                        <div class="leg-item" id='leg-netx'>
+                        
+                        <div class="leg-item" id='leg-us'>
                             <div class="leg-color"></div>
-                            <p>Northeast Texas</p>
+                            <p>US</p>
                         </div>
                     </div>
 
                     <div id="demo-charts-wrap">
                         <div class="demo-chart">
-                            <h2>Trend data from 2005 to 2019</h2>
+                            <h2>By year: 2005-2019</h2>
                             <hr>
                             <div id="trend-chart"></div>
                         </div>
                         <div class="demo-chart">
-                            <h2>Gender comparison</h2>
+                            <h2>By sex: 2019</h2>
                             <hr>
                             <div id="gender-chart"></div>
                         </div>
                         <div class="demo-chart">
-                            <h2>Race and ethnicity comparison</h2>
+                            <h2>By race and ethnicity: 2019</h2>
                             <hr>
                             <div id="race-chart"></div>
                         </div>

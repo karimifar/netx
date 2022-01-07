@@ -7,17 +7,19 @@ var apiUrl =   'https://texashealthdata.com'
 var selected = false;
 var trendData;
 var demoData
-var demoColors = ["#ecb29e","#9b3557", "#420239"]
-var regions = [{region:'us', name:'US'}, {region:'tx', name:'Texas'}, {region:'netx', name:'Northeast Texas'}]
+var demoColors = ["#420239","#9b3557","#ecb29e"]
+var regions = [{region:'netx', name:'Northeast Texas'}, {region:'tx', name:'Texas'}, {region:'us', name:'US'}, ]
 var rColors = ['#ddd',"#98d1d1", "#54bebe", "#df979e", "#c80064"]
 var input = document.getElementById("main-input");
 
+var screenW;
+var screenH;
 // var binning = 'r'
 var ctyData;
 var allCounties = []
 var KEYS = {
     'acm': {
-        'name': "All Cause"
+        'name': "All-Cause"
         },
     'can': {
         'name': "Cancer"
@@ -26,7 +28,7 @@ var KEYS = {
         'name': "Heart Disease"
         },
     'clr': {
-        'name': "Respiratory Disease"
+        'name': "Chronic Lower Respiratory Disease"
         },
     'str': {
         'name': "Stroke"
@@ -38,8 +40,30 @@ var KEYS = {
 }
 var cause_keys = Object.keys(KEYS);
 var visible_layer = cause_keys[0];
+var zoom = 6.5;
 
-
+updateScreen();
+function updateScreen(){
+    screenW = $(window).width();
+    screenH = $(window).height();
+    if(screenW<991){
+        zoom = 6;
+        if(map){
+            map.setZoom(zoom)
+        }
+    }else{
+        zoom = 6.5;
+        if(map){
+            map.setZoom(zoom)
+        }
+    }
+}
+function updateZoom(){
+    
+}
+$( window ).resize(function() {
+    updateScreen()
+});
 //get all county data and store in ctyData & KEYS variables
 $.get(apiUrl+'/api/netx/all', function(data){
     ctyData = data;
@@ -109,7 +133,7 @@ function createTrendChart(cause){
     var causeTrend = [usTrend, stateTrend, netxTrend]
     // console.log(causeTrend)
 
-    var margin = {top: 20, right: 10, bottom: 30, left: 30};
+    var margin = {top: 20, right: 10, bottom: 30, left: 50};
     var width = 500;
     var height= 300;
     var domain =[];
@@ -137,7 +161,7 @@ function createTrendChart(cause){
         .range([height-margin.bottom, margin.top])
 
     var demoColor = d3.scaleOrdinal()
-        .domain([0,1,2])
+        .domain([2,1,0])
         .range(demoColors)
 
     var ticks = yScale.ticks()
@@ -176,6 +200,7 @@ function createTrendChart(cause){
             .tickPadding(5)
             .tickSize(5)
         );
+
     svg.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(" +margin.left+ ',' + " 0)")
@@ -183,7 +208,18 @@ function createTrendChart(cause){
         .tickValues(ticks)
         .tickPadding(5)
         .tickSize(0)
-    ); 
+    );
+
+    svg.append('text').text('Deaths per 100,000 population')
+        .attr('x', '10')
+        .attr('y', height/2)
+        .attr('text-anchor', 'end')
+        .attr('dy', '-21em')
+        .attr('dx', '-2em')
+        .style('font-size', '11px')
+        .style('font-weight', '200')
+        .style('writing-mode', 'vertical-rl')
+        .style('transform', 'rotate(180deg)')
 
     for(var i=0; i<causeTrend.length;i++){
         drawLine(causeTrend[i], i)
@@ -251,7 +287,7 @@ function createGenderChart(cause){
         var dataObj = {region: region, name:name, gender:[parseFloat(rawData[region+'_f']), parseFloat(rawData[region+'_m'])]}
         data.push(dataObj)
     }
-    var margin = {top: 20, right: 10, bottom: 30, left: 30};
+    var margin = {top: 20, right: 10, bottom: 30, left: 50};
     var width = 500;
     var height= 300;
     var innerW = width-margin.left-margin.right;
@@ -268,7 +304,7 @@ function createGenderChart(cause){
         .range([height-margin.bottom, margin.top])
     
     var demoColor = d3.scaleOrdinal()
-        .domain(['us','tx','netx'])
+        .domain(['netx','tx', 'us'])
         .range(demoColors)
 
     var svg = d3.select('#gender-chart').append('svg')
@@ -312,6 +348,19 @@ function createGenderChart(cause){
         .tickPadding(5)
         .tickSize(0)
     ); 
+    svg.append('text').text('Deaths per 100,000 population')
+    .attr('x', '10')
+    .attr('y', height/2)
+    .attr('text-anchor', 'end')
+    .attr('dy', '-21em')
+    .attr('dx', '-2em')
+    .style('font-size', '11px')
+    .style('font-weight', '200')
+    .style('writing-mode', 'vertical-rl')
+    .style('transform', 'rotate(180deg)')
+    
+    // .style('transform-origin', '10 '+ height/2+')')
+
     function drawBars(data,i){
         var region= data.region;
         svg.append('g')
@@ -326,7 +375,8 @@ function createGenderChart(cause){
             .attr('y',function(d,j){return yScale(d)})
             .attr('width',barW)
             .attr('height',function(d){return yScale(0)-yScale(d)})
-            .style('fill', demoColor(data.name))
+            .style('fill', demoColor(data.region))
+            console.log(demoColor(data.name), data.region)
 
             svg.selectAll('.bar-region-'+region)
             .data(data.gender)
@@ -356,7 +406,7 @@ function createRaceChart(cause){
         data.push(dataObj)
     }
 
-    var margin = {top: 20, right: 10, bottom: 30, left: 30};
+    var margin = {top: 20, right: 10, bottom: 30, left: 50};
     var width = 500;
     var height= 300;
     var innerW = width-margin.left-margin.right;
@@ -373,7 +423,7 @@ function createRaceChart(cause){
         .range([height-margin.bottom, margin.top])
     
     var demoColor = d3.scaleOrdinal()
-        .domain(['us','tx','netx'])
+        .domain(['netx','tx','us'])
         .range(demoColors)
 
     var svg = d3.select('#race-chart').append('svg')
@@ -423,6 +473,18 @@ function createRaceChart(cause){
         .tickPadding(5)
         .tickSize(0)
     ); 
+
+    svg.append('text').text('Deaths per 100,000 population')
+        .attr('x', '10')
+        .attr('y', height/2)
+        .attr('text-anchor', 'end')
+        .attr('dy', '-21em')
+        .attr('dx', '-2em')
+        .style('font-size', '11px')
+        .style('font-weight', '200')
+        .style('writing-mode', 'vertical-rl')
+        .style('transform', 'rotate(180deg)')
+
     function drawBars(data,i){
         var region= data.region;
         svg.append('g')
@@ -476,7 +538,7 @@ function createLegend(){
     
         $('#legend').prepend(legend_item)
     }
-    $('#legend').prepend('<p>'+KEYS[visible_layer].name +' mortality rate per 100,000<br>3-year average: 2017-2019</p>')
+    $('#legend').prepend('<p>'+KEYS[visible_layer].name +' age-adjusted mortality rate per 100,000, 3-year average: 2017-2019</p>')
 }
 
 
@@ -494,7 +556,7 @@ var popup = new mapboxgl.Popup({
 function createMap(){
     map = new mapboxgl.Map({
         container: 'map',
-        zoom: 6.5,
+        zoom: zoom,
         center: [-95.0, 31.6],
         maxZoom: 10,
         minZoom: 5.5,
@@ -860,6 +922,7 @@ function createColChart(id){
       .attr("transform", "rotate(-45)" )
       .attr("class", (d,i)=> 'bar-label bar-label-cty' )
       .style('font-size','2.6px')
+      .style('text-transform','capitalize')
       .attr("data-county", (d,i)=> d.toLowerCase())
 
     $('.col-chart-bar').hover(function(){
@@ -943,7 +1006,7 @@ function queryCounty(county){
 
 var radarState = [
     [
-        {axis:'All Cause', value: 0, key:'acm'},
+        {axis:'All-Cause', value: 0, key:'acm'},
         {axis:'Cancer', value: 0, key:'can'},
         {axis:'Unintentional injury', value: 0, key:'uni'},
         {axis:'Respiratory Disease', value: 0, key:'clr'},
@@ -969,6 +1032,7 @@ $('.modal-toggle').on('click', function(){
 $('#deselect').on('click',function(){
     $('.bar-outline[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
     $('.bar-label-rate[data-county="'+selectedCty.toLowerCase()+'"]').css('opacity', '0')
+    $('.bar-label[data-county="'+selectedCty.toLowerCase()+'"]').css('font-weight', '400')
     selected=false;
     selectedCty = '';
     $('#main-input').val(selectedCty)
@@ -995,9 +1059,9 @@ function toTitleCase(str) {
     );
 }
 
-$('#leg-us .leg-color').css('background', demoColors[0])
+$('#leg-us .leg-color').css('background', demoColors[2])
 $('#leg-tx .leg-color').css('background', demoColors[1])
-$('#leg-netx .leg-color').css('background', demoColors[2])
+$('#leg-netx .leg-color').css('background', demoColors[0])
 
 
 function setInstruction(){

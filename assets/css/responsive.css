@@ -96,8 +96,14 @@
     .instruction{
         display: none
     }
-    #logos{
+    footer{
+        padding: 20px 20px 40px;
+    }
+    #logos-home{
         display: none;
+    }
+    #legend{
+        background-color: #ffffffee;
     }
 }  
 
@@ -120,5 +126,8 @@
 }
 
 @media only screen and (max-width: 667px){
-   
+   .logos{
+        justify-content: center;
+        flex-wrap: wrap;
+   }
 }
