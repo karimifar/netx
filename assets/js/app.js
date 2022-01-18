@@ -523,11 +523,11 @@ function createLegend(){
     $('#legend').append('<div class="legend-item"><p class="leg-text">Unavailable</p><div class="leg-color" style="background-color:'+rColors[0]+'" ></div></div>')
     for(var i=0; i<breaks.length; i++){
         if(i==0){
-            var leg_name= 'Below '+breaks[i+1].toFixed(1)
+            var leg_name= breaks[i+1].toFixed(1) +' and below'
         }else if(i == breaks.length-1){
-            var leg_name= 'Above '+breaks[i].toFixed(1)
+            var leg_name= breaks[i].toFixed(1) + ' and above'
         }else{
-            var leg_name= breaks[i].toFixed(1) + '–' +breaks[i+1].toFixed(1)
+            var leg_name= breaks[i].toFixed(1) + ' – ' +(breaks[i+1]-0.1).toFixed(1)
         }
         
         var color= rColors[i+1]

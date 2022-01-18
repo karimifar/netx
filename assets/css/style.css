@@ -407,10 +407,24 @@ form{
     color: #E2C4BD;
     border-radius: 5px;
     padding: 3px 10px;
+    transition: all 0.2s ease-in-out;
 }
 #buttons button a{
     color: #E2C4BD
 }
+#buttons button i{
+    color: #E2C4BD
+}
+#buttons button:hover{
+    background-color: #E2C4BD;
+}
+#buttons button:hover a{
+    color: #2e2438
+}
+#buttons button:hover i{
+    color: #2e2438
+}
+
 #search-bar{
     width:40px;
     transition: all 0.5s ease-in-out;
