@@ -83,6 +83,10 @@
         right: 0px;
         top: 10px;
     }
+    .mapboxgl-ctrl-top-right{
+        left:10px !important;
+        right: auto;
+    }
     #col-chart-wrap{
         margin-left: -5%;
         width: 108%;

@@ -562,7 +562,8 @@ function createMap(){
         minZoom: 5.5,
         style: mapStyle
     })
-    
+    map.addControl(new mapboxgl.NavigationControl());
+
 
     map.on('load', function () {
         // var layers = map.getStyle().layers;
@@ -1079,3 +1080,4 @@ if(!viewed){
     $('body').addClass('first-view')
     sessionStorage.setItem('viewed', true);
 }
+
