@@ -59,21 +59,21 @@
                 <div id="spacer"></div>
                 <div id="intro" class="closed">
                     <!-- <h1>Health Status of Northeast Texas</h1> -->
-                    <div id="intro-modal">
+                    <main id="intro-modal">
                         <h1>2021 Health Status of Northeast Texas</h1>
                         <p>
                             This interactive tool is a digital complement to The Health Status of Northeast Texas, 2021 report. It visualizes county-level age-adjusted mortality rates for the 35-county area also referred to as the DSHS Health Service Region 4/5, and compares rates for the counties and region to the state and nation. 
                         </p>
 
-                    </div>
-                    <div id="buttons">
+                    </main>
+                    <div id="buttons" role="navigation">
                         <button class=''><i class="fas fa-info-circle"></i> <a href="./about/">Learn more</a></button>
                         <button class=''><i class="far fa-file-pdf"></i> <a target="_blank" href="./netx21.pdf">Download report</a></button>    
                     </div>
-                    <p id="instructions">
+                    <p id="instructions" role="navigation">
                         To get started, click on a county on the map or search by name below. Use the drop-down to see the data for other causes of mortality.
                     </p>
-                    <form action="">
+                    <form action="" role="search">
                         <div class="control" id="select-cause" >
                             <label class="control-head" for="cause">Select mortality cause:</label>
             
@@ -90,7 +90,7 @@
                         </div>
                         <div class='control' id="search-bar">
                             <input class="input control-element" id="main-input" autocomplete="off" type="text" required autofocus>
-                            <button class="control-element" type='submit' id="submit"><i class="fas fa-search"></i></button>    
+                            <button class="control-element" type='submit' id="submit" aria-label='submit'><i class="fas fa-search"></i></button>    
                         </div>
                     </form>
                     
@@ -98,7 +98,7 @@
 
                 </div>
                  
-                <div id="toolbar">
+                <div id="toolbar" role="complementary">
                     <div id="deselect"><i class="fas fa-times"></i></div>
                     <div id="popup" class='d-flex'>
                         <div class="county">
@@ -118,7 +118,7 @@
                     <div id="toolbar-spacer"></div>
                 </div>
 
-                <div id="logos-home" class="logos">
+                <div id="logos-home" class="logos" role="contentinfo">
                     <div id="uthct" class="logo-wrap">
                         <img src="./assets/img/uthct.png" alt="">
                     </div>
@@ -131,7 +131,7 @@
             </div>
  
         </div>
-        <div id="background">
+        <div id="background" role="region">
             <div id="map">
                 
             </div>
@@ -150,15 +150,15 @@
 
             <div id="map-mask">
             </div>
-            <div class="instruction" id="demo-inst">
+            <div class="instruction" id="demo-inst" role="complementary">
                 Click on the left bar for trend & demographic data
                 <p><i class="fas fa-arrow-left"></i></p>
             </div>
             
         </div>
-        <div id="fg-left-col">
+        <div id="fg-left-col" role="complementary">
             <div id="demo-data" class="">
-                <div id="demo-data-content" >
+                <div id="demo-data-content" tabindex="2" >
                     <h1>Age-adjusted <span class="cause-name">All-Cause</span> mortality rates:  regional, state, and national comparisons.</h1>
                     <!-- <hr> -->
                     <div class='d-flex' id="demo-legend">
@@ -196,7 +196,7 @@
                     </div>
                     
                 </div>
-                <div id="demo-data-handle">
+                <div id="demo-data-handle" tabindex="1">
                     <p>
                         Trend & demographic data <br>
                         <i id='handle-arrow' class="fas fa-chevron-right"></i>
